@@ -1,0 +1,923 @@
+<!--
+  ============================================================
+  SELAT — ATELIER
+  Built by WebFarm Technology
+  ============================================================
+
+  WHAT IS DIFFERENT ABOUT THIS BUILD
+  ----------------------------------
+  There are no product images anywhere in this file, and none are
+  needed. Every wrapper is drawn in the browser at load time by a
+  small pattern generator seeded from the product's id, so each
+  product gets its own batik-derived wrapper that is stable across
+  reloads. Every product is a real three-dimensional object built
+  from DOM elements — you pick it up and turn it, and a bar can be
+  unwrapped to the moulded chocolate underneath.
+
+  This means the shop can go live before a single photograph has
+  been taken, and it cannot look like a template, because the
+  artwork does not exist anywhere else.
+
+  WHERE TO EDIT
+  -------------
+  Search for  EDIT FROM HERE.  Three blocks:
+
+    SITE       brand, currency, delivery, statement
+    ESTATES    the pins on the origin map
+    PRODUCTS   name, price, story, specs, wrapper palette
+
+  A product's wrapper is controlled by three things:
+      palette : ["#base","#ink","#accent"]
+      motif   : "rebung" | "kawung" | "songket" | "circuit"
+      seed    : any word — change it to reshuffle the pattern
+
+  If real photographs arrive later, add  photo:"https://..."  to a
+  product and it will be used for the front face instead of the
+  generated wrapper. Nothing else needs to change.
+  ============================================================
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#171314">
+<title>Selat — Atelier</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,500;12..96,700&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+/* ================= EDIT FROM HERE — colour and rhythm ================= */
+:root{
+  --ground:#171314;        /* page */
+  --panel:#1F1A1B;         /* stages and cards */
+  --raise:#292223;
+  --bone:#F0E9DE;          /* text */
+  --bone-dim:#948A82;      /* secondary text */
+  --rule:rgba(240,233,222,.13);
+
+  --gutter:clamp(20px,5vw,84px);
+  --stack:clamp(76px,11vw,168px);
+  --ease:cubic-bezier(.22,.61,.28,1);
+  --slow:cubic-bezier(.16,1,.3,1);
+}
+/* ===================== structure — no need to change ===================== */
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--ground);color:var(--bone);
+  font:300 15.5px/1.68 "Bricolage Grotesque",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden}
+body.locked{overflow:hidden}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:1px solid var(--bone);outline-offset:4px}
+
+h1,h2,h3{font-family:"Bricolage Grotesque",sans-serif;font-weight:700;
+  letter-spacing:-.028em;line-height:.98}
+h1{font-size:clamp(42px,7.6vw,104px)}
+h2{font-size:clamp(28px,4vw,52px)}
+h3{font-size:clamp(18px,1.8vw,22px);font-weight:500;letter-spacing:-.015em}
+p{max-width:58ch}
+.mono{font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--bone-dim)}
+
+/* ---------- header ---------- */
+header{position:fixed;inset:0 0 auto;z-index:80;display:flex;align-items:center;gap:28px;
+  padding:18px var(--gutter);background:rgba(23,19,20,.86);backdrop-filter:blur(14px);
+  border-bottom:1px solid transparent;transition:border-color .4s,transform .5s var(--ease)}
+header.stuck{border-bottom-color:var(--rule)}
+header.away{transform:translateY(-102%)}
+.brand{font-weight:700;font-size:20px;letter-spacing:-.03em}
+.brand i{font-style:normal;color:var(--bone-dim);font-weight:300}
+nav{margin-left:auto;display:flex;gap:26px;align-items:center}
+nav a,nav button{font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--bone-dim);transition:color .3s}
+nav a:hover,nav a.on,nav button:hover{color:var(--bone)}
+main{padding-top:62px}
+
+/* ---------- reveal ---------- */
+.rv{opacity:0;transform:translateY(18px)}
+.rv.in{opacity:1;transform:none;transition:opacity 1s var(--ease),transform 1s var(--slow)}
+
+/* ---------- 3D object ---------- */
+.obj{position:relative;transform-style:preserve-3d;will-change:transform;
+  transition:transform .8s var(--slow)}
+.face{position:absolute;inset:0;background-size:cover;background-position:center;
+  backface-visibility:hidden;overflow:hidden}
+.face.back{background:linear-gradient(160deg,#2A2224,#191314);
+  transform:rotateY(180deg) translateZ(0)}
+.edge{position:absolute;background:linear-gradient(90deg,#241D1E,#3A2F30,#241D1E)}
+.shadow{position:absolute;left:50%;bottom:-9%;width:66%;height:20px;translate:-50% 0;
+  background:radial-gradient(ellipse,rgba(0,0,0,.62),transparent 70%);filter:blur(9px)}
+
+/* moulded chocolate face, revealed on unwrap */
+.mould{position:absolute;inset:0;display:grid;gap:2px;padding:6px;
+  background:#3A2318}
+.mould i{background:
+    linear-gradient(150deg,rgba(255,225,190,.16),rgba(0,0,0,.32)),
+    linear-gradient(#5A3620,#42261A);
+  box-shadow:inset 0 1px 0 rgba(255,220,180,.18),inset 0 -2px 3px rgba(0,0,0,.4)}
+.sleeve{position:absolute;left:0;right:0;top:0;bottom:0;background-size:cover;
+  transform-origin:50% 100%;transition:transform 1s var(--slow),opacity .9s var(--ease)}
+.obj.open .sleeve{transform:translateY(78%) rotateX(-42deg);opacity:0}
+.snapped{position:absolute;width:23%;height:22%;left:8%;top:10%;
+  background:linear-gradient(150deg,rgba(255,225,190,.18),rgba(0,0,0,.3)),
+             linear-gradient(#5A3620,#42261A);
+  box-shadow:0 14px 22px rgba(0,0,0,.5);opacity:0;
+  transition:transform 1.05s var(--slow),opacity .7s var(--ease)}
+.obj.open .snapped{opacity:1;transform:translate3d(-62%,-30%,66px) rotate(-13deg)}
+
+/* ---------- hero ---------- */
+.hero{padding:clamp(34px,6vw,90px) var(--gutter) clamp(40px,6vw,80px);
+  display:grid;grid-template-columns:1.06fr .94fr;gap:clamp(30px,5vw,72px);align-items:center}
+.hero .mono{margin-bottom:26px;color:var(--bone-dim)}
+.hero h1{margin-bottom:26px}
+.hero p{color:var(--bone-dim);margin-bottom:32px}
+.heroStage{aspect-ratio:1;display:grid;place-items:center;perspective:1500px;
+  background:radial-gradient(ellipse at 50% 42%,rgba(240,233,222,.07),transparent 62%);
+  cursor:grab;touch-action:pan-y;position:relative}
+.heroStage.drag{cursor:grabbing}
+.stagehint{position:absolute;left:50%;bottom:8px;translate:-50% 0;pointer-events:none}
+
+/* ---------- buttons ---------- */
+.ul{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:11.5px;
+  letter-spacing:.14em;text-transform:uppercase;padding-bottom:5px;position:relative}
+.ul::after{content:"";position:absolute;left:0;bottom:0;height:1px;width:100%;
+  background:currentColor;transform-origin:right;transition:transform .5s var(--slow)}
+.ul:hover::after{transform:scaleX(0);transform-origin:left}
+.solid{display:inline-block;padding:15px 34px;background:var(--bone);color:var(--ground);
+  font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.14em;
+  text-transform:uppercase;position:relative;overflow:hidden}
+.solid span{position:relative;z-index:2}
+.solid::before{content:"";position:absolute;inset:0;background:var(--accent,#C98A4B);
+  transform:translateY(101%);transition:transform .5s var(--slow)}
+.solid:hover::before{transform:none}
+.solid.wide{display:block;width:100%;text-align:center}
+
+/* ---------- sections ---------- */
+section{padding:0 var(--gutter) var(--stack)}
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:26px;
+  padding-bottom:18px;border-bottom:1px solid var(--rule);margin-bottom:clamp(34px,4vw,60px)}
+
+/* ---------- origin map ---------- */
+.mapwrap{position:relative;border:1px solid var(--rule);background:var(--panel);
+  padding:clamp(16px,3vw,34px)}
+#map{width:100%;height:auto;display:block}
+.pin{position:absolute;width:13px;height:13px;translate:-50% -50%;border-radius:50%;
+  border:1px solid var(--bone);background:var(--ground);cursor:pointer;
+  transition:transform .4s var(--slow),background .3s}
+.pin::after{content:"";position:absolute;inset:2px;border-radius:50%;background:var(--pc,#C98A4B)}
+.pin:hover,.pin.on{transform:translate(-50%,-50%) scale(1.5)}
+.pinlabel{position:absolute;translate:-50% -140%;white-space:nowrap;pointer-events:none;
+  font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.1em;
+  text-transform:uppercase;padding:5px 9px;background:var(--ground);border:1px solid var(--rule);
+  opacity:0;transition:opacity .3s var(--ease)}
+.pin:hover+.pinlabel{opacity:1}
+
+/* ---------- grid ---------- */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+  gap:clamp(30px,4vw,54px) clamp(20px,2.6vw,36px)}
+.card{position:relative}
+.card .cell{aspect-ratio:1;display:grid;place-items:center;perspective:900px;
+  background:var(--panel);border:1px solid var(--rule);overflow:hidden;
+  transition:border-color .45s,background .45s}
+.card:hover .cell{border-color:rgba(240,233,222,.32);background:var(--raise)}
+.card .meta{display:flex;justify-content:space-between;gap:14px;margin-top:16px;
+  align-items:flex-start}
+.card .origin{margin-top:6px}
+.card .price{font-weight:500;font-size:18px;white-space:nowrap;color:var(--pc,#C98A4B)}
+.card .addline{margin-top:13px;overflow:hidden}
+.card .addline>*{display:inline-block;transform:translateY(130%);transition:transform .55s var(--slow)}
+.card:hover .addline>*,.card:focus-within .addline>*{transform:none}
+@media(hover:none){.card .addline>*{transform:none}}
+
+/* ---------- statement ---------- */
+.statement{padding:clamp(60px,9vw,130px) var(--gutter);border-top:1px solid var(--rule);
+  border-bottom:1px solid var(--rule)}
+.statement p{font-size:clamp(21px,3vw,38px);font-weight:300;line-height:1.24;
+  letter-spacing:-.02em;max-width:24ch;margin:0 auto;text-align:center}
+.statement p w{transition:color .3s linear;color:rgba(240,233,222,.2)}
+.statement p w.lit{color:var(--bone)}
+
+/* ---------- product page ---------- */
+.pdp{display:grid;grid-template-columns:1.04fr .96fr;gap:clamp(30px,5vw,84px);
+  padding:clamp(26px,4vw,66px) var(--gutter) var(--stack)}
+.stage{position:sticky;top:92px}
+.bigStage{aspect-ratio:1;display:grid;place-items:center;perspective:1600px;cursor:grab;
+  background:radial-gradient(ellipse at 50% 44%,rgba(240,233,222,.08),transparent 62%),var(--panel);
+  border:1px solid var(--rule);touch-action:pan-y;position:relative;overflow:hidden}
+.bigStage.drag{cursor:grabbing}
+.stagebar{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-top:12px}
+.readout{display:flex;gap:16px}
+.pdp .eyebrow{margin-bottom:18px}
+.pdp h2{margin-bottom:20px}
+.pdp .lede{font-size:17px;margin-bottom:18px}
+.pdp .body{color:var(--bone-dim);margin-bottom:32px}
+.pdp .price{font-size:34px;font-weight:500;color:var(--pc,#C98A4B);margin-bottom:6px}
+.pdp .terms{margin-bottom:32px}
+.buyrow{display:flex;gap:14px;align-items:stretch;flex-wrap:wrap}
+.qty{display:inline-flex;align-items:center;border:1px solid var(--rule)}
+.qty button{width:46px;transition:background .3s}
+.qty button:hover{background:var(--raise)}
+.qty i{font-style:normal;min-width:32px;text-align:center}
+.specs{margin-top:46px;border-top:1px solid var(--rule)}
+.specs div{display:flex;justify-content:space-between;gap:22px;padding:14px 0;
+  border-bottom:1px solid var(--rule);font-size:14px}
+.recipe{margin-top:30px;padding:16px 18px;border:1px dashed var(--rule)}
+.recipe span{display:block;margin-top:6px;color:var(--bone-dim);font-size:11px}
+
+/* ---------- drawer ---------- */
+#scrim{position:fixed;inset:0;z-index:150;background:rgba(8,6,7,.68);backdrop-filter:blur(4px);
+  opacity:0;pointer-events:none;transition:opacity .45s var(--ease)}
+#scrim.open{opacity:1;pointer-events:auto}
+#drawer{position:fixed;top:0;right:0;bottom:0;z-index:160;width:min(410px,100%);
+  background:var(--panel);border-left:1px solid var(--rule);display:flex;flex-direction:column;
+  transform:translateX(101%);transition:transform .58s var(--slow)}
+#drawer.open{transform:none}
+.dr-top{display:flex;align-items:center;justify-content:space-between;padding:22px 24px 18px;
+  border-bottom:1px solid var(--rule)}
+.dr-body{flex:1;overflow-y:auto;padding:4px 24px}
+.dr-foot{padding:20px 24px 24px;border-top:1px solid var(--rule)}
+.dr-foot div{display:flex;justify-content:space-between;padding:6px 0;font-size:13.5px;
+  color:var(--bone-dim)}
+.dr-foot .grand{color:var(--bone);font-size:22px;font-weight:500;border-top:1px solid var(--rule);
+  margin-top:10px;padding-top:14px}
+.line{display:grid;grid-template-columns:64px 1fr auto;gap:14px;align-items:start;padding:18px 0;
+  border-bottom:1px solid var(--rule);opacity:0;transform:translateX(24px);
+  animation:sl .5s var(--slow) forwards}
+@keyframes sl{to{opacity:1;transform:none}}
+.line .sq{aspect-ratio:1;background-size:cover;background-position:center;
+  border:1px solid var(--rule)}
+.line .amt{text-align:right;font-weight:500}
+.dr-empty{text-align:center;padding:64px 10px;color:var(--bone-dim)}
+
+.fly{position:fixed;z-index:200;width:10px;height:10px;border-radius:2px;pointer-events:none}
+
+footer{border-top:1px solid var(--rule);padding:30px var(--gutter);display:flex;
+  justify-content:space-between;gap:18px;flex-wrap:wrap}
+
+@media(max-width:920px){
+  .hero{grid-template-columns:1fr}
+  .pdp{grid-template-columns:1fr}
+  .stage{position:static}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important}
+  .rv,.line{opacity:1;transform:none}
+  .statement p w{color:var(--bone)}
+}
+</style>
+</head>
+<body>
+
+<header id="hd">
+  <a class="brand" href="#/">Selat <i>atelier</i></a>
+  <nav>
+    <a href="#/shop" data-r="/shop">Shop</a>
+    <a href="#/map" data-r="/map">Origins</a>
+    <button id="cartlink">Cart (0)</button>
+  </nav>
+</header>
+
+<main id="app"></main>
+
+<footer>
+  <span class="mono">Prototype — WebFarm Technology, Chennai</span>
+  <span class="mono" id="yr"></span>
+</footer>
+
+<div id="scrim"></div>
+<aside id="drawer" aria-label="Cart"><div id="drawerinner"></div></aside>
+
+<script>
+/* ==================================================================
+   EDIT FROM HERE
+   ================================================================== */
+
+const SITE = {
+  brand:"Selat",
+  currency:"₹",
+  shipping:149,
+  freeAbove:2500,
+  statement:"Every wrapper on this site is drawn by the site itself, once, from the name of the estate it came from."
+};
+
+/* pins on the origin map — x and y are percentages of the map box */
+const ESTATES = [
+  { id:"cameron72",       label:"Tanah Rata, Pahang", x:26.5, y:41 },
+  { id:"sabahsalt",       label:"Kudat, Sabah",       x:83,   y:31 },
+  { id:"duriantruffle",   label:"Raub, Pahang",       x:24,   y:47 },
+  { id:"pandanwhite",     label:"Bachok, Kelantan",   x:25,   y:24 },
+  { id:"penangbank",      label:"George Town, Penang",x:15,   y:29 },
+  { id:"klbuds",          label:"Cheras, KL",         x:22,   y:55 },
+  { id:"langkawiadapter", label:"Kuah, Langkawi",     x:12,   y:20 },
+  { id:"melakalamp",      label:"Melaka town",        x:21,   y:64 },
+  { id:"sgtracker",       label:"Marina Bay, Singapore", x:19, y:79 }
+];
+
+/*  palette : [wrapper base, ink, accent]
+    motif   : rebung | kawung | songket | circuit
+    seed    : change the word to reshuffle the pattern            */
+const PRODUCTS = [
+  { id:"cameron72", name:"Cameron Highlands 72%", kind:"bar",
+    origin:"Pahang · single estate", price:450,
+    palette:["#1E3B2E","#0C1A14","#C4A254"], motif:"rebung", seed:"tanah rata",
+    lede:"Cacao grown on the cool slopes above Tanah Rata, fermented seven days, roasted in eighty-bar batches.",
+    story:"Bitter at the front, then a long finish of dried plum. The estate has changed hands twice since 1974 and has never sold to a blender.",
+    specs:[["Weight","80 g"],["Cacao","72%"],["Estate","Tanah Rata"],["Store at","18–22°C"]] },
+
+  { id:"sabahsalt", name:"Sabah Sea Salt", kind:"bar",
+    origin:"Sabah · Kudat salt", price:520,
+    palette:["#153C4A","#08181F","#E4E0D2"], motif:"songket", seed:"kudat",
+    lede:"Dark chocolate interrupted by coarse salt harvested on the Kudat coast.",
+    story:"The salt is folded in after tempering so it stays as crystals. You should feel it break against the roof of your mouth.",
+    specs:[["Weight","90 g"],["Cacao","66%"],["Salt","Kudat, hand-raked"],["Store at","18–22°C"]] },
+
+  { id:"duriantruffle", name:"Durian Truffle", kind:"bar",
+    origin:"Nine pieces · Musang King", price:890,
+    palette:["#4A3F12","#1B1706","#D8C24A"], motif:"kawung", seed:"musang king",
+    lede:"Musang King pulp folded into white ganache, shelled in dark.",
+    story:"Divisive on purpose. Made to order in small trays, shipped chilled with a gel pack. It does not keep.",
+    specs:[["Count","9 pieces"],["Fruit","Musang King"],["Keeps","14 days"],["Ships","Chilled"]] },
+
+  { id:"pandanwhite", name:"Pandan White", kind:"bar",
+    origin:"Kelantan · fresh leaf", price:430,
+    palette:["#E7E2D2","#26361F","#5E8F52"], motif:"rebung", seed:"bachok",
+    lede:"Pandan steeped into the cocoa butter rather than added as an essence.",
+    story:"The colour stays pale and the flavour reads grassy instead of sweet. Nothing green has been added to help it along.",
+    specs:[["Weight","80 g"],["Type","White chocolate"],["Leaf","Kelantan"],["Store at","18–22°C"]] },
+
+  { id:"penangbank", name:"Penang Power Bank", kind:"slab",
+    origin:"20,000 mAh · 65 W", price:2400,
+    palette:["#20242B","#0B0D11","#7FA6C4"], motif:"circuit", seed:"george town",
+    lede:"Charges a laptop and a phone at once without dropping either to trickle speed.",
+    story:"Milled aluminium, bead-blasted. Sized to the cabin limit so it travels without a conversation at security.",
+    specs:[["Capacity","20,000 mAh"],["Output","65 W USB-C"],["Ports","2 × C, 1 × A"],["Warranty","18 months"]] },
+
+  { id:"klbuds", name:"KL Earbuds", kind:"slab",
+    origin:"Hybrid ANC · 32 hours", price:3900,
+    palette:["#2A2130","#100C13","#B49AC8"], motif:"circuit", seed:"cheras",
+    lede:"Tuned warm, so street noise sits behind the music instead of fighting it.",
+    story:"The case takes the same cable as your phone. No proprietary anything.",
+    specs:[["Playback","8 h + 24 h case"],["Noise","Hybrid ANC"],["Water","IPX5"],["Warranty","12 months"]] },
+
+  { id:"langkawiadapter", name:"Langkawi Adapter", kind:"slab",
+    origin:"Four regions · fold-flat", price:1150,
+    palette:["#2C2519","#100D08","#C99A4B"], motif:"songket", seed:"kuah",
+    lede:"One body, four plug heads, pins that fold back into the shell.",
+    story:"Narrow enough to still fit a wall socket when a fat charger is sitting beside it.",
+    specs:[["Regions","MY, IN, EU, US"],["USB","2 × C, 1 × A"],["Load","2,300 W"],["Weight","118 g"]] },
+
+  { id:"melakalamp", name:"Melaka Desk Lamp", kind:"slab",
+    origin:"Warm dim · solid brass", price:2750,
+    palette:["#3A2A16","#150F07","#E0B368"], motif:"kawung", seed:"melaka",
+    lede:"Dims to candle warmth rather than staying cold at low brightness.",
+    story:"Unlacquered brass. It will take fingerprints and darken unevenly, which is the reason to buy it.",
+    specs:[["Range","2,200–4,000 K"],["Power","9 W LED"],["Base","Solid brass"],["Cable","1.8 m braided"]] },
+
+  { id:"sgtracker", name:"Singapore Smart Tracker", kind:"slab",
+    origin:"Singapore · Bluetooth finder", price:1490,
+    palette:["#132A2C","#06100F","#4FD1C5"], motif:"circuit", seed:"marina bay",
+    lede:"A coin-sized tracker that rides in a wallet or bag and pings a phone from a room away.",
+    story:"Placeholder listing — built to disappear, no LED, no buzzer unless asked, a battery that lasts a year on one charge.",
+    specs:[["Range","~80 m Bluetooth"],["Battery","12 months"],["Water","IP67"],["Warranty","12 months"]] }
+];
+
+/* ==================================================================
+   END OF EDITABLE PART
+   ================================================================== */
+
+const money = n => SITE.currency + n.toLocaleString("en-IN");
+const find  = id => PRODUCTS.find(p => p.id === id);
+const app   = document.getElementById("app");
+const reduce = matchMedia("(prefers-reduced-motion:reduce)").matches;
+let cart = [];
+
+/* ---------------- seeded random, so patterns never change ---------------- */
+const hash = s => { let h = 2166136261;
+  for(let i = 0; i < s.length; i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return h >>> 0; };
+function rng(seed){ let a = hash(seed);
+  return () => { a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+/* ---------------- the wrapper generator ---------------- */
+const cache = {};
+function wrapper(p, size = 620){
+  if(p.photo) return `url("${p.photo}")`;
+  if(cache[p.id]) return cache[p.id];
+  const [base, ink, accent] = p.palette;
+  const r = rng(p.seed || p.id);
+  const c = document.createElement("canvas");
+  c.width = size; c.height = Math.round(size * 1.45);
+  const x = c.getContext("2d"), W = c.width, H = c.height;
+
+  x.fillStyle = base; x.fillRect(0,0,W,H);
+
+  /* paper tooth */
+  for(let i = 0; i < W * H / 260; i++){
+    x.fillStyle = `rgba(255,255,255,${r() * .035})`;
+    x.fillRect(r() * W, r() * H, 1, 1);
+  }
+
+  const unit = Math.round(W / (4 + Math.floor(r() * 3)));
+  x.lineWidth = Math.max(1, unit * .035);
+
+  if(p.motif === "rebung"){                 /* bamboo-shoot triangles */
+    for(let row = -1; row * unit < H + unit; row++){
+      for(let col = -1; col * unit < W + unit; col++){
+        const ox = col * unit + (row % 2 ? unit / 2 : 0), oy = row * unit;
+        const up = (row + col) % 2 === 0;
+        x.beginPath();
+        if(up){ x.moveTo(ox, oy + unit); x.lineTo(ox + unit / 2, oy); x.lineTo(ox + unit, oy + unit); }
+        else  { x.moveTo(ox, oy); x.lineTo(ox + unit / 2, oy + unit); x.lineTo(ox + unit, oy); }
+        x.closePath();
+        x.fillStyle = up ? ink : "transparent";
+        x.globalAlpha = up ? .5 + r() * .3 : 1; x.fill();
+        x.globalAlpha = 1; x.strokeStyle = accent; x.stroke();
+      }
+    }
+  }
+
+  if(p.motif === "kawung"){                 /* interlocking rounds */
+    for(let row = 0; row * unit < H + unit; row++){
+      for(let col = 0; col * unit < W + unit; col++){
+        const cx = col * unit + (row % 2 ? unit / 2 : 0), cy = row * unit;
+        for(let k = 3; k >= 1; k--){
+          x.beginPath();
+          x.ellipse(cx, cy, unit * .34 * k / 3, unit * .46 * k / 3, 0, 0, 7);
+          x.fillStyle = k % 2 ? ink : accent;
+          x.globalAlpha = k === 3 ? .55 : .8; x.fill();
+        }
+        x.globalAlpha = 1;
+      }
+    }
+  }
+
+  if(p.motif === "songket"){                /* woven bands with gold thread */
+    for(let y0 = 0; y0 < H; y0 += unit * .5){
+      x.fillStyle = ink; x.globalAlpha = .35 + r() * .25;
+      x.fillRect(0, y0, W, unit * .22);
+    }
+    x.globalAlpha = 1;
+    for(let y0 = unit * .3; y0 < H; y0 += unit){
+      for(let x0 = 0; x0 < W; x0 += unit * .5){
+        x.fillStyle = accent; x.globalAlpha = .35 + r() * .5;
+        x.beginPath();
+        x.moveTo(x0, y0); x.lineTo(x0 + unit * .16, y0 + unit * .18);
+        x.lineTo(x0, y0 + unit * .36); x.lineTo(x0 - unit * .16, y0 + unit * .18);
+        x.closePath(); x.fill();
+      }
+    }
+    x.globalAlpha = 1;
+  }
+
+  if(p.motif === "circuit"){                /* traces and pads */
+    x.strokeStyle = accent; x.globalAlpha = .5;
+    for(let i = 0; i < 46; i++){
+      let px = Math.round(r() * W / 20) * 20, py = Math.round(r() * H / 20) * 20;
+      x.beginPath(); x.moveTo(px, py);
+      for(let s = 0; s < 3 + r() * 4; s++){
+        const d = 20 * (1 + Math.floor(r() * 4));
+        r() > .5 ? px += r() > .5 ? d : -d : py += r() > .5 ? d : -d;
+        x.lineTo(px, py);
+      }
+      x.stroke();
+      x.fillStyle = accent; x.globalAlpha = .8;
+      x.beginPath(); x.arc(px, py, 3.4, 0, 7); x.fill();
+      x.globalAlpha = .5;
+    }
+    x.globalAlpha = 1;
+  }
+
+  /* the band that carries the name */
+  const bandH = H * .2, bandY = H * .4;
+  x.fillStyle = ink; x.globalAlpha = .92; x.fillRect(0, bandY, W, bandH);
+  x.globalAlpha = 1;
+  x.strokeStyle = accent; x.lineWidth = 2;
+  x.strokeRect(W * .06, bandY + bandH * .16, W * .88, bandH * .68);
+  x.fillStyle = accent;
+  x.font = `500 ${Math.round(W * .085)}px "Bricolage Grotesque", sans-serif`;
+  x.textAlign = "center"; x.textBaseline = "middle";
+  x.fillText(SITE.brand.toUpperCase(), W / 2, bandY + bandH * .43);
+  x.fillStyle = "#F0E9DE";
+  x.font = `300 ${Math.round(W * .042)}px "IBM Plex Mono", monospace`;
+  x.fillText((p.seed || p.id).toUpperCase(), W / 2, bandY + bandH * .72);
+
+  /* light falling from the upper left */
+  const g = x.createLinearGradient(0,0,W,H);
+  g.addColorStop(0,"rgba(255,255,255,.13)");
+  g.addColorStop(.5,"rgba(0,0,0,0)");
+  g.addColorStop(1,"rgba(0,0,0,.34)");
+  x.fillStyle = g; x.fillRect(0,0,W,H);
+
+  return cache[p.id] = `url("${c.toDataURL("image/jpeg", .86)}")`;
+}
+
+/* ---------------- build a real 3D object out of divs ---------------- */
+function object3d(p, w){
+  const bar = p.kind === "bar";
+  const h = bar ? w * 1.45 : w * 1.02, d = bar ? w * .11 : w * .17;
+  const seg = bar
+    ? `<div class="mould" style="grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(6,1fr)">
+         ${Array.from({length:24}, () => "<i></i>").join("")}</div>`
+    : `<div class="mould" style="grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);background:#22262C">
+         ${Array.from({length:9}, () => "<i></i>").join("")}</div>`;
+  return `<div class="obj" data-obj style="width:${w}px;height:${h}px">
+    <div class="face">${seg}
+      <div class="sleeve" style="background-image:${wrapper(p)}"></div>
+      <div class="snapped"></div>
+    </div>
+    <div class="face back"></div>
+    <div class="edge" style="width:${d}px;height:${h}px;left:${-d/2}px;
+      transform:rotateY(-90deg) translateZ(${-w/2 + d/2}px)"></div>
+    <div class="edge" style="width:${d}px;height:${h}px;right:${-d/2}px;
+      transform:rotateY(90deg) translateZ(${-w/2 + d/2}px)"></div>
+    <div class="edge" style="height:${d}px;width:${w}px;top:${-d/2}px;
+      transform:rotateX(90deg) translateZ(${-h/2 + d/2}px)"></div>
+    <div class="edge" style="height:${d}px;width:${w}px;bottom:${-d/2}px;
+      transform:rotateX(-90deg) translateZ(${-h/2 + d/2}px)"></div>
+    <div class="shadow"></div>
+  </div>`;
+}
+
+/* give an object mouse and touch control */
+function grip(stage, opts = {}){
+  const obj = stage.querySelector("[data-obj]");
+  if(!obj) return;
+  let ry = opts.ry ?? -22, rx = opts.rx ?? 8, down = false, lx = 0, ly = 0, v = 0, touched = false;
+  const out = stage.parentElement && stage.parentElement.querySelector("[data-deg]");
+
+  const paint = () => {
+    obj.style.transition = down ? "none" : "transform .5s var(--slow)";
+    obj.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
+    const t = Math.abs(Math.cos(ry * Math.PI / 180));
+    const sh = obj.querySelector(".shadow");
+    if(sh){ sh.style.transform = `scaleX(${.55 + t * .45})`; sh.style.opacity = .45 + t * .55; }
+    if(out) out.textContent = Math.round(((ry % 360) + 360) % 360) + "°";
+  };
+  const loop = () => {
+    if(!down){
+      if(Math.abs(v) > .02){ ry += v; v *= .94; paint(); }
+      else if(!touched && !reduce && opts.idle !== false){ ry += .17; paint(); }
+    }
+    requestAnimationFrame(loop);
+  };
+  const down_ = (px,py) => { down = true; touched = true; lx = px; ly = py; v = 0;
+    stage.classList.add("drag"); };
+  const move_ = (px,py) => { if(!down) return;
+    v = (px - lx) * .38; ry += v; rx = Math.max(-42, Math.min(42, rx - (py - ly) * .26));
+    lx = px; ly = py; paint(); };
+  const up_ = () => { down = false; stage.classList.remove("drag"); };
+
+  stage.addEventListener("mousedown", e => { e.preventDefault(); down_(e.clientX, e.clientY); });
+  window.addEventListener("mousemove", e => move_(e.clientX, e.clientY));
+  window.addEventListener("mouseup", up_);
+  stage.addEventListener("touchstart", e => down_(e.touches[0].clientX, e.touches[0].clientY), {passive:true});
+  stage.addEventListener("touchmove",  e => move_(e.touches[0].clientX, e.touches[0].clientY), {passive:true});
+  stage.addEventListener("touchend", up_);
+  paint(); loop();
+  return obj;
+}
+
+/* ------------------------------ pages ------------------------------ */
+function cardHTML(p){
+  return `<article class="card rv" style="--pc:${p.palette[2]}">
+    <a href="#/p/${p.id}"><div class="cell" data-mini="${p.id}"></div></a>
+    <div class="meta">
+      <div><a href="#/p/${p.id}"><h3>${p.name}</h3></a>
+        <div class="origin mono">${p.origin}</div></div>
+      <div class="price">${money(p.price)}</div>
+    </div>
+    <div class="addline"><button class="ul" data-add="${p.id}">Add to cart</button></div>
+  </article>`;
+}
+
+function home(){
+  const lead = find("cameron72");
+  return `
+  <div class="hero">
+    <div class="rv">
+      <div class="mono">Kuala Lumpur & Singapore → India · nine products</div>
+      <h1>Pick it up.<br>Turn it over.<br>Open it.</h1>
+      <p>Nothing here is a photograph. Each wrapper is drawn by this page from the name of the estate, and every product is a solid object you can handle before you buy it.</p>
+      <a class="solid" href="#/shop" style="--accent:${lead.palette[2]}"><span>Enter the shop</span></a>
+    </div>
+    <div class="rv">
+      <div class="heroStage" id="heroStage">
+        ${object3d(lead, 230)}
+        <span class="stagehint mono">Drag to turn · double-click to unwrap</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="statement rv"><p id="statement">
+    ${SITE.statement.split(" ").map(w => `<w>${w}</w>`).join(" ")}
+  </p></div>
+
+  <section style="padding-top:var(--stack)">
+    <div class="head rv"><h2>Bars</h2><span class="mono">Four, from four estates</span></div>
+    <div class="grid">${PRODUCTS.filter(p => p.kind === "bar").map(cardHTML).join("")}</div>
+  </section>
+
+  <section>
+    <div class="head rv"><h2>Objects</h2><span class="mono">What we pack to go up there</span></div>
+    <div class="grid">${PRODUCTS.filter(p => p.kind === "slab").map(cardHTML).join("")}</div>
+  </section>
+
+  <section>
+    <div class="head rv"><h2>Origins</h2>
+      <a class="ul" href="#/map">Open the map</a></div>
+    ${mapHTML(320)}
+  </section>`;
+}
+
+function shop(){
+  return `<section style="padding-top:clamp(26px,4vw,58px)">
+    <div class="head rv"><h2>Everything</h2>
+      <span class="mono">${PRODUCTS.length} products · India in 3–6 days</span></div>
+    <div class="grid">${PRODUCTS.map(cardHTML).join("")}</div>
+  </section>`;
+}
+
+function mapHTML(h){
+  return `<div class="mapwrap rv" id="mapwrap">
+    <canvas id="map" width="1200" height="${h * 2}"></canvas>
+    ${ESTATES.map(e => { const p = find(e.id); if(!p) return "";
+      return `<span class="pin" style="left:${e.x}%;top:${e.y}%;--pc:${p.palette[2]}"
+                data-pin="${e.id}"></span>
+              <span class="pinlabel" style="left:${e.x}%;top:${e.y}%">${e.label} — ${p.name}</span>`;
+    }).join("")}
+  </div>`;
+}
+
+function mapPage(){
+  return `<section style="padding-top:clamp(26px,4vw,58px)">
+    <div class="head rv"><h2>Origins</h2>
+      <span class="mono">Hover a pin · click to open the product</span></div>
+    ${mapHTML(420)}
+    <p class="mono" style="margin-top:18px">Stylised. Not for navigation.</p>
+  </section>`;
+}
+
+function pdp(id){
+  const p = find(id); if(!p) return notfound();
+  const est = ESTATES.find(e => e.id === id);
+  return `<div class="pdp" style="--pc:${p.palette[2]}">
+    <div class="stage rv">
+      <div class="bigStage" id="bigStage">${object3d(p, 250)}</div>
+      <div class="stagebar">
+        <button class="ul" id="unwrap">${p.kind === "bar" ? "Unwrap" : "Open"}</button>
+        <div class="readout mono">
+          <span>Rotation <b data-deg>0°</b></span>
+          <span>Seed ${(p.seed || p.id).toUpperCase()}</span>
+        </div>
+      </div>
+      <div class="recipe mono">Wrapper generated on this device — motif ${p.motif},
+        three colours, one seed.
+        <span>Change the seed in the file and the pattern changes with it.</span></div>
+    </div>
+    <div class="rv">
+      <div class="eyebrow mono">${p.kind === "bar" ? "Bar" : "Object"} — ${p.origin}</div>
+      <h2>${p.name}</h2>
+      <p class="lede">${p.lede}</p>
+      <p class="body">${p.story}</p>
+      <div class="price">${money(p.price)}</div>
+      <div class="terms mono">All taxes in · free delivery above ${money(SITE.freeAbove)}</div>
+      <div class="buyrow">
+        <div class="qty"><button data-q="-1" aria-label="Reduce">−</button><i id="q">1</i><button data-q="1" aria-label="Increase">+</button></div>
+        <button class="solid" data-add="${p.id}" data-useq="1" style="--accent:${p.palette[2]}">
+          <span>Add to cart</span></button>
+      </div>
+      <div class="specs">${p.specs.map(s =>
+        `<div><span class="mono">${s[0]}</span><span>${s[1]}</span></div>`).join("")}
+        ${est ? `<div><span class="mono">Origin</span><span>${est.label}</span></div>` : ""}
+      </div>
+    </div>
+  </div>`;
+}
+
+const notfound = () => `<section style="text-align:center;padding-top:110px">
+  <h2>Page not found</h2><p class="mono" style="margin:16px auto 26px">
+  That address does not exist.</p><a class="ul" href="#/">Back to the shop</a></section>`;
+
+/* ---------------- the map, drawn rather than loaded ---------------- */
+function paintMap(){
+  const c = document.getElementById("map"); if(!c) return;
+  const x = c.getContext("2d"), W = c.width, H = c.height;
+  x.clearRect(0,0,W,H);
+
+  /* sea: dotted grid */
+  x.fillStyle = "rgba(240,233,222,.09)";
+  for(let gy = 0; gy < H; gy += 18)
+    for(let gx = 0; gx < W; gx += 18) x.fillRect(gx, gy, 1.4, 1.4);
+
+  const poly = pts => {
+    x.beginPath();
+    pts.forEach(([px,py],i) => i ? x.lineTo(px * W, py * H) : x.moveTo(px * W, py * H));
+    x.closePath();
+  };
+  /* stylised peninsula and Borneo states */
+  const peninsula = [[.115,.13],[.165,.10],[.215,.14],[.255,.22],[.275,.34],[.285,.47],
+    [.268,.60],[.235,.72],[.205,.80],[.178,.74],[.168,.60],[.152,.46],[.132,.33],[.108,.22]];
+  const borneo = [[.60,.30],[.66,.20],[.76,.16],[.86,.19],[.94,.28],[.95,.42],[.88,.54],
+    [.76,.60],[.66,.56],[.60,.46]];
+
+  [peninsula, borneo].forEach(shape => {
+    poly(shape);
+    const g = x.createLinearGradient(0,0,W,H);
+    g.addColorStop(0,"rgba(240,233,222,.14)");
+    g.addColorStop(1,"rgba(240,233,222,.05)");
+    x.fillStyle = g; x.fill();
+    x.strokeStyle = "rgba(240,233,222,.5)"; x.lineWidth = 2; x.stroke();
+  });
+
+  /* contour hatching inside the peninsula */
+  x.save(); poly(peninsula); x.clip();
+  x.strokeStyle = "rgba(240,233,222,.12)"; x.lineWidth = 1;
+  for(let i = -H; i < W; i += 12){
+    x.beginPath(); x.moveTo(i, 0); x.lineTo(i + H, H); x.stroke();
+  }
+  x.restore();
+
+  /* faint lines from every pin to the shipping label */
+  x.strokeStyle = "rgba(240,233,222,.18)"; x.setLineDash([4,7]);
+  ESTATES.forEach(e => {
+    x.beginPath(); x.moveTo(e.x / 100 * W, e.y / 100 * H);
+    x.lineTo(W * .03, H * .93); x.stroke();
+  });
+  x.setLineDash([]);
+  x.fillStyle = "rgba(240,233,222,.6)";
+  x.font = '300 20px "IBM Plex Mono", monospace';
+  x.fillText("→ CHENNAI", W * .03, H * .965);
+}
+
+/* --------------------------- cart drawer --------------------------- */
+const drawer = document.getElementById("drawer"),
+      scrim  = document.getElementById("scrim"),
+      dinner = document.getElementById("drawerinner");
+
+function drawCart(){
+  document.getElementById("cartlink").textContent =
+    "Cart (" + cart.reduce((t,l) => t + l.n, 0) + ")";
+  if(!cart.length){
+    dinner.innerHTML = `<div class="dr-top"><h3>Cart</h3>
+      <button class="ul" id="drclose">Close</button></div>
+      <div class="dr-body"><div class="dr-empty"><h3>Empty</h3>
+      <p class="mono" style="margin-top:10px">Nothing picked up yet.</p></div></div>`;
+    return;
+  }
+  const sub  = cart.reduce((t,l) => t + find(l.id).price * l.n, 0);
+  const ship = sub >= SITE.freeAbove ? 0 : SITE.shipping;
+  dinner.innerHTML = `
+    <div class="dr-top"><h3>Cart</h3><button class="ul" id="drclose">Close</button></div>
+    <div class="dr-body">${cart.map((l,i) => { const p = find(l.id); return `
+      <div class="line" style="animation-delay:${i*70}ms">
+        <div class="sq" style="background-image:${wrapper(p)}"></div>
+        <div><h3>${p.name}</h3><div class="origin mono">${p.origin}</div>
+          <button class="ul" data-del="${p.id}" style="margin-top:10px">Remove</button></div>
+        <div><div class="amt">${money(p.price*l.n)}</div>
+          <div class="mono" style="text-align:right;margin-top:4px">${l.n} × ${money(p.price)}</div></div>
+      </div>`; }).join("")}</div>
+    <div class="dr-foot">
+      <div><span>Subtotal</span><span>${money(sub)}</span></div>
+      <div><span>Delivery</span><span>${ship ? money(ship) : "Free"}</span></div>
+      <div class="grand"><span>Total</span><span>${money(sub + ship)}</span></div>
+      <button class="solid wide" style="margin-top:18px"><span>Checkout</span></button>
+      <span class="mono" style="display:block;text-align:center;margin-top:12px">
+        Checkout is not connected in this prototype</span>
+    </div>`;
+}
+const openCart  = () => { drawCart(); drawer.classList.add("open");
+  scrim.classList.add("open"); document.body.classList.add("locked"); };
+const closeCart = () => { drawer.classList.remove("open");
+  scrim.classList.remove("open"); document.body.classList.remove("locked"); };
+document.getElementById("cartlink").addEventListener("click", openCart);
+scrim.addEventListener("click", closeCart);
+document.addEventListener("keydown", e => e.key === "Escape" && closeCart());
+
+/* ------------------------------ router ------------------------------ */
+function render(){
+  const path = (location.hash.slice(1) || "/").split("?")[0];
+  const seg = path.split("/").filter(Boolean);
+  if(!seg.length)                   app.innerHTML = home();
+  else if(seg[0] === "shop")        app.innerHTML = shop();
+  else if(seg[0] === "map")         app.innerHTML = mapPage();
+  else if(seg[0] === "p" && seg[1]) app.innerHTML = pdp(seg[1]);
+  else                              app.innerHTML = notfound();
+  window.scrollTo(0,0);
+  document.querySelectorAll("nav a[data-r]").forEach(a =>
+    a.classList.toggle("on", a.dataset.r === "/" + (seg[0] || "")));
+
+  reveal(); paintMap(); mountObjects(); statementScroll();
+}
+
+/* put a small turnable object inside every grid cell */
+function mountObjects(){
+  document.querySelectorAll("[data-mini]").forEach(cell => {
+    const p = find(cell.dataset.mini);
+    cell.innerHTML = object3d(p, cell.clientWidth * .46 || 110);
+    grip(cell, {idle:false, ry:-20, rx:6});
+  });
+  const hs = document.getElementById("heroStage");
+  if(hs){
+    grip(hs);
+    hs.addEventListener("dblclick", () => hs.querySelector(".obj").classList.toggle("open"));
+  }
+  const bs = document.getElementById("bigStage");
+  if(bs){
+    grip(bs);
+    const btn = document.getElementById("unwrap");
+    btn && btn.addEventListener("click", () => {
+      const o = bs.querySelector(".obj");
+      o.classList.toggle("open");
+      btn.textContent = o.classList.contains("open") ? "Wrap it back" : "Unwrap";
+    });
+  }
+}
+
+let io;
+function reveal(){
+  io && io.disconnect();
+  io = new IntersectionObserver(es => es.forEach(e => {
+    if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); }
+  }), {threshold:.08, rootMargin:"0px 0px -5%"});
+  document.querySelectorAll(".rv").forEach((el,i) => {
+    el.style.transitionDelay = Math.min(i,4) * 95 + "ms";
+    io.observe(el);
+  });
+}
+
+/* statement lights up word by word */
+let onScroll;
+function statementScroll(){
+  window.removeEventListener("scroll", onScroll);
+  const el = document.getElementById("statement");
+  if(!el || reduce) return;
+  const ws = [...el.querySelectorAll("w")];
+  const apply = () => {
+    const r = el.getBoundingClientRect(), vh = innerHeight;
+    const k = (vh * .74 - r.top) / (r.height + vh * .26);
+    const upto = Math.round(Math.max(0, Math.min(1, k)) * ws.length);
+    ws.forEach((w,i) => w.classList.toggle("lit", i < upto));
+  };
+  onScroll = () => requestAnimationFrame(apply);
+  window.addEventListener("scroll", onScroll, {passive:true});
+  apply();
+}
+
+/* ----------------------------- cart ----------------------------- */
+function add(id, n, from){
+  const line = cart.find(l => l.id === id);
+  line ? line.n += n : cart.push({id, n});
+  drawCart(); fly(from, find(id));
+}
+function fly(from, p){
+  if(!from || reduce) return;
+  const a = from.getBoundingClientRect();
+  const b = document.getElementById("cartlink").getBoundingClientRect();
+  const d = document.createElement("div");
+  d.className = "fly";
+  d.style.background = p.palette[2];
+  d.style.left = a.left + a.width / 2 + "px";
+  d.style.top  = a.top  + a.height / 2 + "px";
+  document.body.appendChild(d);
+  d.animate([
+    {transform:"translate(0,0) rotate(0)", opacity:1},
+    {transform:`translate(${(b.left - a.left) * .55}px, ${(b.top - a.top) * .4 - 72}px) rotate(120deg) scale(1.7)`, offset:.5},
+    {transform:`translate(${b.left + 20 - a.left}px, ${b.top + 8 - a.top}px) rotate(300deg) scale(.3)`, opacity:0}
+  ], {duration:880, easing:"cubic-bezier(.3,.7,.3,1)"}).onfinish = () => d.remove();
+}
+
+document.addEventListener("click", e => {
+  if(e.target.closest("#drclose")){ closeCart(); return; }
+  const pin = e.target.closest("[data-pin]");
+  if(pin){ location.hash = "#/p/" + pin.dataset.pin; return; }
+  const btn = e.target.closest("[data-add]");
+  if(btn){ const n = btn.dataset.useq ? +document.getElementById("q").textContent : 1;
+    add(btn.dataset.add, n, btn); return; }
+  const q = e.target.closest("[data-q]");
+  if(q){ const el = document.getElementById("q");
+    el.textContent = Math.max(1, +el.textContent + +q.dataset.q); return; }
+  const del = e.target.closest("[data-del]");
+  if(del){ cart = cart.filter(l => l.id !== del.dataset.del); drawCart(); }
+});
+
+let lastY = 0;
+window.addEventListener("scroll", () => {
+  const hd = document.getElementById("hd"), y = scrollY;
+  hd.classList.toggle("stuck", y > 8);
+  hd.classList.toggle("away", y > lastY && y > 240);
+  lastY = y;
+}, {passive:true});
+window.addEventListener("resize", () => { paintMap(); }, {passive:true});
+
+document.getElementById("yr").textContent = new Date().getFullYear();
+drawCart();
+window.addEventListener("hashchange", render);
+render();
+</script>
+</body>
+</html>
