@@ -53,6 +53,11 @@
   --bone-dim:#948A82;      /* secondary text */
   --rule:rgba(240,233,222,.13);
 
+  --gold:#C9A227;          /* signature luxury accent */
+  --gold-soft:#E8C874;     /* lighter gold, for text and glows on dark */
+  --gold-line:rgba(201,162,39,.4);   /* gold hairlines and borders */
+  --gold-glow:rgba(201,162,39,.14);  /* ambient gold wash */
+
   --gutter:clamp(16px,5vw,84px);
   --stack:clamp(76px,11vw,168px);
   --ease:cubic-bezier(.22,.61,.28,1);
@@ -62,13 +67,17 @@
 /* ===================== structure — no need to change ===================== */
 
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--ground);color:var(--bone);
+body{background:
+    radial-gradient(ellipse 1200px 700px at 50% -8%,var(--gold-glow),transparent 60%),
+    var(--ground);
+  color:var(--bone);
   font:300 15.5px/1.68 "Bricolage Grotesque",system-ui,sans-serif;
   -webkit-font-smoothing:antialiased;overflow-x:hidden}
 body.locked{overflow:hidden}
 a{color:inherit;text-decoration:none}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
-:focus-visible{outline:1px solid var(--bone);outline-offset:4px}
+:focus-visible{outline:1px solid var(--gold-soft);outline-offset:4px}
+::selection{background:var(--gold-line);color:var(--bone)}
 
 h1,h2,h3{font-family:"Bricolage Grotesque",sans-serif;font-weight:700;
   letter-spacing:-.028em;line-height:.98}
@@ -83,14 +92,16 @@ p{max-width:58ch}
 header{position:fixed;inset:0 0 auto;z-index:80;display:flex;align-items:center;gap:clamp(10px,3vw,28px);
   padding:clamp(12px,2.6vw,18px) var(--gutter);background:rgba(23,19,20,.86);backdrop-filter:blur(14px);
   border-bottom:1px solid transparent;transition:border-color .4s,transform .5s var(--ease)}
-header.stuck{border-bottom-color:var(--rule)}
+header.stuck{border-bottom-color:var(--gold-line)}
 header.away{transform:translateY(-102%)}
-.brand{font-weight:700;font-size:clamp(17px,4.4vw,20px);letter-spacing:-.03em;white-space:nowrap;flex:none}
+.brand{font-weight:700;font-size:clamp(17px,4.4vw,20px);letter-spacing:-.03em;white-space:nowrap;flex:none;
+  transition:color .3s}
+.brand:hover{color:var(--gold-soft)}
 .brand i{font-style:normal;color:var(--bone-dim);font-weight:300}
 nav{margin-left:auto;display:flex;gap:clamp(12px,3.2vw,26px);align-items:center;flex:none}
 nav a,nav button{font-family:"IBM Plex Mono",monospace;font-size:clamp(10px,2.6vw,11.5px);letter-spacing:.08em;
   text-transform:uppercase;color:var(--bone-dim);transition:color .3s;white-space:nowrap}
-nav a:hover,nav a.on,nav button:hover{color:var(--bone)}
+nav a:hover,nav a.on,nav button:hover{color:var(--gold-soft)}
 @media(max-width:420px){ .brand i{display:none} }
 main{padding-top:var(--header-h)}
 
@@ -133,7 +144,7 @@ main{padding-top:var(--header-h)}
 .hero h1{margin-bottom:26px}
 .hero p{color:var(--bone-dim);margin-bottom:32px}
 .heroStage{aspect-ratio:1;display:grid;place-items:center;perspective:1500px;
-  background:radial-gradient(ellipse at 50% 42%,rgba(240,233,222,.07),transparent 62%);
+  background:radial-gradient(ellipse at 50% 42%,var(--gold-glow),transparent 62%);
   cursor:grab;touch-action:pan-y;position:relative}
 .heroStage.drag{cursor:grabbing}
 .stagehint{position:absolute;left:50%;bottom:8px;translate:-50% 0;pointer-events:none}
@@ -146,9 +157,10 @@ main{padding-top:var(--header-h)}
 .ul:hover::after{transform:scaleX(0);transform-origin:left}
 .solid{display:inline-block;padding:15px 34px;background:var(--bone);color:var(--ground);
   font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.14em;
-  text-transform:uppercase;position:relative;overflow:hidden}
+  text-transform:uppercase;position:relative;overflow:hidden;
+  box-shadow:inset 0 0 0 1px var(--gold-line)}
 .solid span{position:relative;z-index:2}
-.solid::before{content:"";position:absolute;inset:0;background:var(--accent,#C98A4B);
+.solid::before{content:"";position:absolute;inset:0;background:var(--accent,var(--gold));
   transform:translateY(101%);transition:transform .5s var(--slow)}
 .solid:hover::before{transform:none}
 .solid.wide{display:block;width:100%;text-align:center}
@@ -165,7 +177,7 @@ section{padding:0 var(--gutter) var(--stack)}
 .pin{position:absolute;width:13px;height:13px;translate:-50% -50%;border-radius:50%;
   border:1px solid var(--bone);background:var(--ground);cursor:pointer;
   transition:transform .4s var(--slow),background .3s}
-.pin::after{content:"";position:absolute;inset:2px;border-radius:50%;background:var(--pc,#C98A4B)}
+.pin::after{content:"";position:absolute;inset:2px;border-radius:50%;background:var(--pc,var(--gold))}
 .pin:hover,.pin.on{transform:translate(-50%,-50%) scale(1.5)}
 .pinlabel{position:absolute;translate:-50% -140%;white-space:nowrap;pointer-events:none;
   font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.1em;
@@ -180,11 +192,11 @@ section{padding:0 var(--gutter) var(--stack)}
 .card .cell{aspect-ratio:1;display:grid;place-items:center;perspective:900px;
   background:var(--panel);border:1px solid var(--rule);overflow:hidden;
   transition:border-color .45s,background .45s}
-.card:hover .cell{border-color:rgba(240,233,222,.32);background:var(--raise)}
+.card:hover .cell{border-color:var(--gold-line);background:var(--raise)}
 .card .meta{display:flex;justify-content:space-between;gap:14px;margin-top:16px;
   align-items:flex-start}
 .card .origin{margin-top:6px}
-.card .price{font-weight:500;font-size:18px;white-space:nowrap;color:var(--pc,#C98A4B)}
+.card .price{font-weight:500;font-size:18px;white-space:nowrap;color:var(--pc,var(--gold))}
 .card .addline{margin-top:13px;overflow:hidden}
 .card .addline>*{display:inline-block;transform:translateY(130%);transition:transform .55s var(--slow)}
 .card:hover .addline>*,.card:focus-within .addline>*{transform:none}
@@ -196,14 +208,14 @@ section{padding:0 var(--gutter) var(--stack)}
 .statement p{font-size:clamp(21px,3vw,38px);font-weight:300;line-height:1.24;
   letter-spacing:-.02em;max-width:24ch;margin:0 auto;text-align:center}
 .statement p w{transition:color .3s linear;color:rgba(240,233,222,.2)}
-.statement p w.lit{color:var(--bone)}
+.statement p w.lit{color:var(--gold-soft)}
 
 /* ---------- product page ---------- */
 .pdp{display:grid;grid-template-columns:1.04fr .96fr;gap:clamp(30px,5vw,84px);
   padding:clamp(26px,4vw,66px) var(--gutter) var(--stack)}
 .stage{position:sticky;top:calc(var(--header-h) + 30px)}
 .bigStage{aspect-ratio:1;display:grid;place-items:center;perspective:1600px;cursor:grab;
-  background:radial-gradient(ellipse at 50% 44%,rgba(240,233,222,.08),transparent 62%),var(--panel);
+  background:radial-gradient(ellipse at 50% 44%,var(--gold-glow),transparent 62%),var(--panel);
   border:1px solid var(--rule);touch-action:pan-y;position:relative;overflow:hidden}
 .bigStage.drag{cursor:grabbing}
 .stagebar{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-top:12px}
@@ -212,7 +224,7 @@ section{padding:0 var(--gutter) var(--stack)}
 .pdp h2{margin-bottom:20px}
 .pdp .lede{font-size:17px;margin-bottom:18px}
 .pdp .body{color:var(--bone-dim);margin-bottom:32px}
-.pdp .price{font-size:34px;font-weight:500;color:var(--pc,#C98A4B);margin-bottom:6px}
+.pdp .price{font-size:34px;font-weight:500;color:var(--pc,var(--gold));margin-bottom:6px}
 .pdp .terms{margin-bottom:32px}
 .buyrow{display:flex;gap:14px;align-items:stretch;flex-wrap:wrap}
 .qty{display:inline-flex;align-items:center;border:1px solid var(--rule)}
@@ -239,7 +251,7 @@ section{padding:0 var(--gutter) var(--stack)}
 .dr-foot{padding:20px 24px 24px;border-top:1px solid var(--rule)}
 .dr-foot div{display:flex;justify-content:space-between;padding:6px 0;font-size:13.5px;
   color:var(--bone-dim)}
-.dr-foot .grand{color:var(--bone);font-size:22px;font-weight:500;border-top:1px solid var(--rule);
+.dr-foot .grand{color:var(--gold-soft);font-size:22px;font-weight:500;border-top:1px solid var(--rule);
   margin-top:10px;padding-top:14px}
 .line{display:grid;grid-template-columns:64px 1fr auto;gap:14px;align-items:start;padding:18px 0;
   border-bottom:1px solid var(--rule);opacity:0;transform:translateX(24px);
@@ -762,13 +774,13 @@ function paintMap(){
   });
   x.setLineDash([]);
 
-  /* destination marker: the shop itself */
+  /* destination marker: the shop itself, picked out in gold */
   x.beginPath(); x.arc(destX, destY, 6, 0, 7);
-  x.fillStyle = "#F0E9DE"; x.fill();
+  x.fillStyle = "#E8C874"; x.fill();
   x.beginPath(); x.arc(destX, destY, 11, 0, 7);
-  x.strokeStyle = "rgba(240,233,222,.5)"; x.lineWidth = 1.4; x.stroke();
+  x.strokeStyle = "rgba(201,162,39,.55)"; x.lineWidth = 1.4; x.stroke();
 
-  x.fillStyle = "rgba(240,233,222,.6)";
+  x.fillStyle = "rgba(232,200,116,.75)";
   x.font = '300 20px "IBM Plex Mono", monospace';
   x.fillText("→ PARANGIPETTAI, CUDDALORE", W * .40, H * .965);
 }
