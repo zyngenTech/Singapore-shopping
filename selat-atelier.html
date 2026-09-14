@@ -135,7 +135,7 @@ p { max-width: 60ch; color: var(--text-dim); }
   color: var(--text-muted);
 }
 
-/* Glassmorphic Header — Refined Luxury Layout */
+/* Glassmorphic Header */
 header {
   position: fixed;
   inset: 0 0 auto;
@@ -401,7 +401,7 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
 .rv { opacity: 0; transform: translateY(18px); }
 .rv.in { opacity: 1; transform: none; transition: opacity 0.65s var(--ease), transform 0.65s var(--slow); }
 
-/* 3D Stage Rendering */
+/* Seamless Floating 3D Object Stage (Without Harsh Box Background) */
 .obj {
   position: relative;
   transform-style: preserve-3d;
@@ -414,11 +414,11 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  box-shadow: var(--glass-shadow);
-  border-radius: 14px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+  border-radius: 16px;
   backface-visibility: hidden;
   overflow: hidden;
-  border: var(--glass-border);
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 .face::before {
   content: "";
@@ -457,6 +457,7 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
 .hero h1 { margin-bottom: 14px; }
 .hero p { color: var(--text-dim); margin-bottom: 22px; font-size: 14.5px; }
 
+/* Clean Seamless Floating 3D Banner Stage */
 .heroStage {
   width: 100%;
   max-width: 270px;
@@ -465,28 +466,13 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
   display: grid;
   place-items: center;
   perspective: 1500px;
-  background: radial-gradient(circle at 50% 50%, rgba(225,29,72,0.1) 0%, rgba(18,20,29,0.7) 70%);
-  border: var(--glass-border);
-  border-radius: 20px;
+  background: transparent;
+  border: none;
   cursor: grab;
   touch-action: pan-y;
   position: relative;
-  box-shadow: var(--glass-shadow);
 }
 .heroStage.drag { cursor: grabbing; }
-.stagehint {
-  position: absolute;
-  left: 50%;
-  bottom: 10px;
-  translate: -50% 0;
-  pointer-events: none;
-  background: rgba(18,20,29,0.85);
-  backdrop-filter: blur(8px);
-  padding: 3px 10px;
-  border-radius: 20px;
-  border: 1px solid var(--border-rule);
-  white-space: nowrap;
-}
 
 /* Buttons — Luxury Atelier Style */
 .ul {
@@ -516,7 +502,7 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 12px 24px;
+  padding: 12px 26px;
   min-height: 44px;
   background: linear-gradient(135deg, #181924, #0f1017);
   border: 1px solid rgba(225, 29, 72, 0.4);
@@ -728,9 +714,8 @@ section { padding: 0 var(--gutter) var(--stack); }
   touch-action: pan-y;
   position: relative;
   overflow: hidden;
-  background: var(--glass-bg);
-  border: var(--glass-border);
-  border-radius: 20px;
+  background: transparent;
+  border: none;
 }
 
 .pdp h2 { font-size: clamp(24px, 4vw, 40px); margin-bottom: 10px; }
@@ -972,7 +957,7 @@ footer {
 </div>
 
 <script>
-/* ================= CONFIGURATION & PRODUCTS ================= */
+/* ================= CONFIGURATION & 8 EVEN PRODUCTS ================= */
 const SITE = {
   brand:"Singapore Shopping",
   currency:"₹",
@@ -983,7 +968,6 @@ const SITE = {
 
 const ESTATES = [
   { id:"cameron72",       label:"Chinatown, Singapore",      x:28, y:52 },
-  { id:"sabahsalt",       label:"Tanjong Pagar, Singapore",  x:32, y:62 },
   { id:"duriantruffle",   label:"Geylang, Singapore",        x:48, y:42 },
   { id:"pandanwhite",     label:"Katong, Singapore",         x:56, y:48 },
   { id:"penangbank",      label:"Sim Lim Square, Singapore",  x:34, y:36 },
@@ -1001,14 +985,6 @@ const PRODUCTS = [
     lede:"Dark cacao fermented seven days and roasted in small eighty-bar batches, brought in through Singapore's trading houses.",
     story:"Bitter at the front, then a long finish of dried plum — from a small grower who has never sold to a blender.",
     specs:[["Weight","80 g"],["Cacao","72%"],["Sourced via","Singapore"],["Store at","18–22°C"]] },
-
-  { id:"sabahsalt", name:"Sabah Sea Salt", kind:"bar",
-    origin:"Singapore import · sea salt", price:520,
-    palette:["#153C4A","#08181F","#E4E0D2"], motif:"songket", seed:"kudat",
-    photo:"images/sabahsalt.jpeg",
-    lede:"Dark chocolate interrupted by coarse sea salt, brought in through Singapore.",
-    story:"The salt is folded in after tempering so it stays as crystals. You should feel it break against the roof of your mouth.",
-    specs:[["Weight","90 g"],["Cacao","66%"],["Salt","Hand-raked sea salt"],["Store at","18–22°C"]] },
 
   { id:"duriantruffle", name:"Musang Durian Truffle", kind:"bar",
     origin:"Nine pieces · Musang King", price:890,
@@ -1224,7 +1200,8 @@ function getFilteredProducts() {
 
 /* Views */
 function home(){
-  const lead = find("cameron72");
+  /* Show Musang Durian Truffle in hero banner stage without background */
+  const lead = find("duriantruffle");
   const filtered = getFilteredProducts();
   return `
   <div class="hero">
@@ -1234,13 +1211,10 @@ function home(){
       <p>Hand-selected gourmet dark chocolates, specialty pantry items, and premium tech objects shipped directly from Singapore to our store in Parangipettai, Cuddalore.</p>
       <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
         <a class="solid" href="#/shop"><span>Browse Collection</span></a>
-        <span class="mono">${PRODUCTS.length} Sourced Items</span>
       </div>
     </div>
     <div class="rv">
-      <div class="heroStage" id="heroStage" data-mini="${lead.id}">
-        <span class="stagehint mono">Drag to rotate 3D</span>
-      </div>
+      <div class="heroStage" id="heroStage" data-mini="${lead.id}"></div>
     </div>
   </div>
 
@@ -1287,9 +1261,9 @@ function mapHTML(h){
     <div class="mobile-pin-toast" id="pinToast">
       <div>
         <div class="mono" id="toastLocation" style="color:var(--accent-crimson)">Chinatown, Singapore</div>
-        <div id="toastProduct" style="font-weight:600;font-size:14px">Cameron Highlands 72%</div>
+        <div id="toastProduct" style="font-weight:600;font-size:14px">Musang Durian Truffle</div>
       </div>
-      <a class="ul" id="toastLink" href="#/p/cameron72">Inspect →</a>
+      <a class="ul" id="toastLink" href="#/p/duriantruffle">Inspect →</a>
     </div>
   </div>`;
 }
