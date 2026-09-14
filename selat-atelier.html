@@ -6,14 +6,13 @@
 
   WHAT THIS BUILD DOES
   ---------------------
-  Every product is a real three-dimensional object built from DOM
-  elements — a customer picks it up, turns it, and a bar can be
-  unwrapped to the moulded chocolate underneath. The front face
-  shows a  photo:"https://..."  image when a product has one; if a
-  product has no photo yet, a small pattern generator draws a
-  batik-derived wrapper instead, seeded from the product's id, so
-  the shop never has to show a blank box while real photography is
-  pending.
+  Every product is shown as a flat photo card floating in 3D — a
+  customer drags it to spin it around, and it eases back to rest
+  on release. The card shows a  photo:"https://..."  image when a
+  product has one; if a product has no photo yet, a small pattern
+  generator draws a batik-derived wrapper instead, seeded from the
+  product's id, so the shop never has to show a blank card while
+  real photography is pending.
 
   WHERE TO EDIT
   -------------
@@ -123,30 +122,11 @@ main{padding-top:var(--header-h)}
 .obj{position:relative;transform-style:preserve-3d;will-change:transform;
   transition:transform .8s var(--slow)}
 .face{position:absolute;inset:0;background-size:cover;background-position:center;
+  background-repeat:no-repeat;box-shadow:0 26px 46px -22px rgba(0,0,0,.35);
   backface-visibility:hidden;overflow:hidden}
-.face.back{background:linear-gradient(160deg,#2A2224,#191314);
-  transform:rotateY(180deg) translateZ(0)}
-.edge{position:absolute;background:linear-gradient(90deg,#241D1E,#3A2F30,#241D1E)}
+.face.back{transform:rotateY(180deg) scaleX(-1)}
 .shadow{position:absolute;left:50%;bottom:-9%;width:66%;height:20px;translate:-50% 0;
   background:radial-gradient(ellipse,rgba(0,0,0,.62),transparent 70%);filter:blur(9px)}
-
-/* moulded chocolate face, revealed on unwrap */
-.mould{position:absolute;inset:0;display:grid;gap:2px;padding:6px;
-  background:#3A2318}
-.mould i{background:
-    linear-gradient(150deg,rgba(255,225,190,.16),rgba(0,0,0,.32)),
-    linear-gradient(#5A3620,#42261A);
-  box-shadow:inset 0 1px 0 rgba(255,220,180,.18),inset 0 -2px 3px rgba(0,0,0,.4)}
-.sleeve{position:absolute;left:0;right:0;top:0;bottom:0;background-size:cover;
-  background-position:center;background-repeat:no-repeat;
-  transform-origin:50% 100%;transition:transform 1s var(--slow),opacity .9s var(--ease)}
-.obj.open .sleeve{transform:translateY(78%) rotateX(-42deg);opacity:0}
-.snapped{position:absolute;width:23%;height:22%;left:8%;top:10%;
-  background:linear-gradient(150deg,rgba(255,225,190,.18),rgba(0,0,0,.3)),
-             linear-gradient(#5A3620,#42261A);
-  box-shadow:0 14px 22px rgba(0,0,0,.5);opacity:0;
-  transition:transform 1.05s var(--slow),opacity .7s var(--ease)}
-.obj.open .snapped{opacity:1;transform:translate3d(-62%,-30%,66px) rotate(-13deg)}
 
 /* ---------- hero ---------- */
 .hero{padding:clamp(34px,6vw,90px) var(--gutter) clamp(40px,6vw,80px);
@@ -200,10 +180,7 @@ section{padding:0 var(--gutter) var(--stack)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
   gap:clamp(30px,4vw,54px) clamp(20px,2.6vw,36px)}
 .card{position:relative}
-.card .cell{aspect-ratio:1;display:grid;place-items:center;perspective:900px;
-  background:var(--panel);border:1px solid var(--rule);overflow:hidden;
-  transition:border-color .45s,background .45s}
-.card:hover .cell{border-color:var(--red-line);background:var(--raise)}
+.card .cell{aspect-ratio:1;display:grid;place-items:center;perspective:900px;overflow:hidden}
 .card .meta{display:flex;justify-content:space-between;gap:14px;margin-top:16px;
   align-items:flex-start}
 .card .origin{margin-top:6px}
@@ -226,8 +203,7 @@ section{padding:0 var(--gutter) var(--stack)}
   padding:clamp(26px,4vw,66px) var(--gutter) var(--stack)}
 .stage{position:sticky;top:calc(var(--header-h) + 30px)}
 .bigStage{aspect-ratio:1;display:grid;place-items:center;perspective:1600px;cursor:grab;
-  background:radial-gradient(ellipse at 50% 44%,var(--red-glow),transparent 62%),var(--panel);
-  border:1px solid var(--rule);touch-action:pan-y;position:relative;overflow:hidden}
+  touch-action:pan-y;position:relative;overflow:hidden}
 .bigStage.drag{cursor:grabbing}
 .stagebar{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-top:12px}
 .readout{display:flex;gap:16px}
@@ -445,7 +421,7 @@ function wrapper(p, size = 620){
   const [base, ink, accent] = p.palette;
   const r = rng(p.seed || p.id);
   const c = document.createElement("canvas");
-  c.width = size; c.height = Math.round(size * 1.45);
+  c.width = size; c.height = size;
   const x = c.getContext("2d"), W = c.width, H = c.height;
 
   x.fillStyle = base; x.fillRect(0,0,W,H);
@@ -550,29 +526,12 @@ function wrapper(p, size = 620){
   return cache[p.id] = `url('${c.toDataURL("image/jpeg", .86)}')`;
 }
 
-/* ---------------- build a real 3D object out of divs ---------------- */
+/* ---------------- build a flat photo card that spins in 3D ---------------- */
 function object3d(p, w){
-  const bar = p.kind === "bar";
-  const h = bar ? w * 1.45 : w * 1.02, d = bar ? w * .11 : w * .17;
-  const seg = bar
-    ? `<div class="mould" style="grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(6,1fr)">
-         ${Array.from({length:24}, () => "<i></i>").join("")}</div>`
-    : `<div class="mould" style="grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);background:#22262C">
-         ${Array.from({length:9}, () => "<i></i>").join("")}</div>`;
-  return `<div class="obj" data-obj style="width:${w}px;height:${h}px">
-    <div class="face">${seg}
-      <div class="sleeve" style="background-image:${wrapper(p)}"></div>
-      <div class="snapped"></div>
-    </div>
-    <div class="face back"></div>
-    <div class="edge" style="width:${d}px;height:${h}px;left:${-d/2}px;
-      transform:rotateY(-90deg) translateZ(${-w/2 + d/2}px)"></div>
-    <div class="edge" style="width:${d}px;height:${h}px;right:${-d/2}px;
-      transform:rotateY(90deg) translateZ(${-w/2 + d/2}px)"></div>
-    <div class="edge" style="height:${d}px;width:${w}px;top:${-d/2}px;
-      transform:rotateX(90deg) translateZ(${-h/2 + d/2}px)"></div>
-    <div class="edge" style="height:${d}px;width:${w}px;bottom:${-d/2}px;
-      transform:rotateX(-90deg) translateZ(${-h/2 + d/2}px)"></div>
+  const bg = wrapper(p);
+  return `<div class="obj" data-obj style="width:${w}px;height:${w}px">
+    <div class="face" style="background-image:${bg}"></div>
+    <div class="face back" style="background-image:${bg}"></div>
     <div class="shadow"></div>
   </div>`;
 }
@@ -642,7 +601,7 @@ function home(){
     <div class="rv">
       <div class="heroStage" id="heroStage">
         ${object3d(lead, 230)}
-        <span class="stagehint mono">Drag to turn · double-click to unwrap</span>
+        <span class="stagehint mono">Drag to turn</span>
       </div>
     </div>
   </div>
@@ -703,15 +662,14 @@ function pdp(id){
     <div class="stage rv">
       <div class="bigStage" id="bigStage">${object3d(p, 250)}</div>
       <div class="stagebar">
-        <button class="ul" id="unwrap">${p.kind === "bar" ? "Unwrap" : "Open"}</button>
         <div class="readout mono">
           <span>Rotation <b data-deg>0°</b></span>
           ${p.photo ? "" : `<span>Seed ${(p.seed || p.id).toUpperCase()}</span>`}
         </div>
       </div>
       <div class="recipe mono">${p.photo
-        ? `Product photo shown on every face — rotate the box for a full look.
-        <span>Replace the photo URL in the file to swap it for the final shot.</span>`
+        ? `Product photo — drag the card to spin it around.
+        <span>Replace the photo URL in the file to swap it for a new shot.</span>`
         : `Wrapper generated on this device — motif ${p.motif}, three colours, one seed.
         <span>Change the seed in the file and the pattern changes with it.</span>`}</div>
     </div>
@@ -866,20 +824,9 @@ function mountObjects(){
     grip(cell, {idle:false, ry:-20, rx:6});
   });
   const hs = document.getElementById("heroStage");
-  if(hs){
-    grip(hs);
-    hs.addEventListener("dblclick", () => hs.querySelector(".obj").classList.toggle("open"));
-  }
+  if(hs) grip(hs);
   const bs = document.getElementById("bigStage");
-  if(bs){
-    grip(bs);
-    const btn = document.getElementById("unwrap");
-    btn && btn.addEventListener("click", () => {
-      const o = bs.querySelector(".obj");
-      o.classList.toggle("open");
-      btn.textContent = o.classList.contains("open") ? "Wrap it back" : "Unwrap";
-    });
-  }
+  if(bs) grip(bs);
 }
 
 let io;
