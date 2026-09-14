@@ -117,12 +117,19 @@ h1 {
   -webkit-text-fill-color: transparent;
   word-break: break-word;
 }
-h1 .glow-text {
-  background: linear-gradient(135deg, #e11d48 0%, #ff6584 50%, #d4af37 100%);
+/* Shimmer Animated Font Gradient */
+.shimmer-text {
+  background: linear-gradient(120deg, #e11d48 0%, #ff6584 30%, #d4af37 60%, #e11d48 100%);
+  background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  animation: shine 4s linear infinite;
   display: inline-block;
 }
+@keyframes shine {
+  to { background-position: 200% center; }
+}
+
 h2 { font-size: clamp(22px, 4.5vw, 40px); letter-spacing: -0.025em; }
 h3 { font-size: clamp(16px, 1.8vw, 19px); font-weight: 600; }
 p { max-width: 60ch; color: var(--text-dim); }
@@ -401,7 +408,7 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
 .rv { opacity: 0; transform: translateY(18px); }
 .rv.in { opacity: 1; transform: none; transition: opacity 0.65s var(--ease), transform 0.65s var(--slow); }
 
-/* Seamless Floating 3D Object Stage (Without Harsh Box Background) */
+/* Seamless Floating 3D Object Stage */
 .obj {
   position: relative;
   transform-style: preserve-3d;
@@ -455,7 +462,13 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
 .hero .mono { margin-bottom: 12px; color: var(--accent-crimson); font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
 .hero .mono::before { content:""; width:6px; height:6px; border-radius:50%; background:var(--accent-crimson); box-shadow: 0 0 8px var(--accent-crimson); }
 .hero h1 { margin-bottom: 14px; }
-.hero p { color: var(--text-dim); margin-bottom: 22px; font-size: 14.5px; }
+.hero p.hero-desc {
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--text-dim);
+  margin-bottom: 20px;
+  max-width: 42ch;
+}
 
 /* Clean Seamless Floating 3D Banner Stage */
 .heroStage {
@@ -1200,15 +1213,14 @@ function getFilteredProducts() {
 
 /* Views */
 function home(){
-  /* Show Musang Durian Truffle in hero banner stage without background */
   const lead = find("duriantruffle");
   const filtered = getFilteredProducts();
   return `
   <div class="hero">
     <div class="rv">
       <div class="mono">Singapore → Parangipettai, Cuddalore</div>
-      <h1>Directly Sourced.<br><span class="glow-text">Pure Singapore.</span></h1>
-      <p>Hand-selected gourmet dark chocolates, specialty pantry items, and premium tech objects shipped directly from Singapore to our store in Parangipettai, Cuddalore.</p>
+      <h1>Directly Sourced.<br><span class="shimmer-text">Pure Singapore.</span></h1>
+      <p class="hero-desc">Singapore curations shipped directly to Parangipettai.</p>
       <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
         <a class="solid" href="#/shop"><span>Browse Collection</span></a>
       </div>
