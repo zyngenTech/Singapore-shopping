@@ -540,7 +540,7 @@ function object3d(p, w){
 function grip(stage, opts = {}){
   const obj = stage.querySelector("[data-obj]");
   if(!obj) return;
-  let ry = opts.ry ?? -22, rx = opts.rx ?? 8, down = false, lx = 0, ly = 0, v = 0, touched = false;
+  let ry = opts.ry ?? -22, rx = opts.rx ?? 8, down = false, lx = 0, v = 0, touched = false;
   const out = stage.parentElement && stage.parentElement.querySelector("[data-deg]");
 
   const paint = () => {
@@ -558,18 +558,18 @@ function grip(stage, opts = {}){
     }
     requestAnimationFrame(loop);
   };
-  const down_ = (px,py) => { down = true; touched = true; lx = px; ly = py; v = 0;
+  const down_ = px => { down = true; touched = true; lx = px; v = 0;
     stage.classList.add("drag"); };
-  const move_ = (px,py) => { if(!down) return;
-    v = (px - lx) * .38; ry += v; rx = Math.max(-42, Math.min(42, rx - (py - ly) * .26));
-    lx = px; ly = py; paint(); };
+  const move_ = px => { if(!down) return;
+    v = (px - lx) * .38; ry += v;
+    lx = px; paint(); };
   const up_ = () => { down = false; stage.classList.remove("drag"); };
 
-  stage.addEventListener("mousedown", e => { e.preventDefault(); down_(e.clientX, e.clientY); });
-  window.addEventListener("mousemove", e => move_(e.clientX, e.clientY));
+  stage.addEventListener("mousedown", e => { e.preventDefault(); down_(e.clientX); });
+  window.addEventListener("mousemove", e => move_(e.clientX));
   window.addEventListener("mouseup", up_);
-  stage.addEventListener("touchstart", e => down_(e.touches[0].clientX, e.touches[0].clientY), {passive:true});
-  stage.addEventListener("touchmove",  e => move_(e.touches[0].clientX, e.touches[0].clientY), {passive:true});
+  stage.addEventListener("touchstart", e => down_(e.touches[0].clientX), {passive:true});
+  stage.addEventListener("touchmove",  e => move_(e.touches[0].clientX), {passive:true});
   stage.addEventListener("touchend", up_);
   paint(); loop();
   return obj;
@@ -599,8 +599,7 @@ function home(){
       <a class="solid" href="#/shop" style="--accent:${lead.palette[2]}"><span>Enter the shop</span></a>
     </div>
     <div class="rv">
-      <div class="heroStage" id="heroStage">
-        ${object3d(lead, 230)}
+      <div class="heroStage" id="heroStage" data-mini="${lead.id}">
         <span class="stagehint mono">Drag to turn</span>
       </div>
     </div>
@@ -660,7 +659,7 @@ function pdp(id){
   const est = ESTATES.find(e => e.id === id);
   return `<div class="pdp" style="--pc:${p.palette[2]}">
     <div class="stage rv">
-      <div class="bigStage" id="bigStage">${object3d(p, 250)}</div>
+      <div class="bigStage" id="bigStage" data-mini="${p.id}"></div>
       <div class="stagebar">
         <div class="readout mono">
           <span>Rotation <b data-deg>0°</b></span>
@@ -816,17 +815,25 @@ function render(){
   reveal(); paintMap(); mountObjects(); statementScroll();
 }
 
-/* put a small turnable object inside every grid cell */
+/* put a turnable object inside every grid cell, sized to fill its stage */
 function mountObjects(){
-  document.querySelectorAll("[data-mini]").forEach(cell => {
+  document.querySelectorAll(".cell[data-mini]").forEach(cell => {
     const p = find(cell.dataset.mini);
-    cell.innerHTML = object3d(p, cell.clientWidth * .46 || 110);
+    cell.innerHTML = object3d(p, cell.clientWidth * .72 || 170);
     grip(cell, {idle:false, ry:-20, rx:6});
   });
   const hs = document.getElementById("heroStage");
-  if(hs) grip(hs);
+  if(hs){
+    const p = find(hs.dataset.mini);
+    hs.insertAdjacentHTML("afterbegin", object3d(p, hs.clientWidth * .62 || 260));
+    grip(hs);
+  }
   const bs = document.getElementById("bigStage");
-  if(bs) grip(bs);
+  if(bs){
+    const p = find(bs.dataset.mini);
+    bs.innerHTML = object3d(p, bs.clientWidth * .68 || 320);
+    grip(bs);
+  }
 }
 
 let io;
