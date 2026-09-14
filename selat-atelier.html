@@ -38,25 +38,25 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#171314">
+<meta name="theme-color" content="#FFFFFF">
 <title>Singapore Shopping — Parangipettai, Cuddalore</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,500;12..96,700&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,500;12..96,700&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet">
 <style>
 /* ================= EDIT FROM HERE — colour and rhythm ================= */
 :root{
-  --ground:#171314;        /* page */
-  --panel:#1F1A1B;         /* stages and cards */
-  --raise:#292223;
-  --bone:#F0E9DE;          /* text */
-  --bone-dim:#948A82;      /* secondary text */
-  --rule:rgba(240,233,222,.13);
+  --ground:#FFFFFF;        /* page — white, matches the wordmark inverted */
+  --panel:#F4F4F4;         /* stages and cards */
+  --raise:#E9E9E9;
+  --bone:#0A0A0A;          /* text */
+  --bone-dim:#6B6B6B;      /* secondary text */
+  --rule:rgba(0,0,0,.12);
 
-  --gold:#C9A227;          /* signature luxury accent */
-  --gold-soft:#E8C874;     /* lighter gold, for text and glows on dark */
-  --gold-line:rgba(201,162,39,.4);   /* gold hairlines and borders */
-  --gold-glow:rgba(201,162,39,.14);  /* ambient gold wash */
+  --red:#E4002B;          /* signature accent — the wordmark red */
+  --red-soft:#B4001C;     /* deeper red, for text and glows on light */
+  --red-line:rgba(228,0,43,.4);   /* red hairlines and borders */
+  --red-glow:rgba(228,0,43,.05);  /* ambient red wash */
 
   --gutter:clamp(16px,5vw,84px);
   --stack:clamp(76px,11vw,168px);
@@ -68,7 +68,7 @@
 
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:
-    radial-gradient(ellipse 1200px 700px at 50% -8%,var(--gold-glow),transparent 60%),
+    radial-gradient(ellipse 1200px 700px at 50% -8%,var(--red-glow),transparent 60%),
     var(--ground);
   color:var(--bone);
   font:300 15.5px/1.68 "Bricolage Grotesque",system-ui,sans-serif;
@@ -76,12 +76,13 @@ body{background:
 body.locked{overflow:hidden}
 a{color:inherit;text-decoration:none}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
-:focus-visible{outline:1px solid var(--gold-soft);outline-offset:4px}
-::selection{background:var(--gold-line);color:var(--bone)}
+:focus-visible{outline:1px solid var(--red-soft);outline-offset:4px}
+::selection{background:var(--red-line);color:var(--bone)}
 
 h1,h2,h3{font-family:"Bricolage Grotesque",sans-serif;font-weight:700;
   letter-spacing:-.028em;line-height:.98}
-h1{font-size:clamp(42px,7.6vw,104px)}
+h1{font-family:"Anton",sans-serif;font-weight:400;letter-spacing:.002em;
+  line-height:.9;text-transform:uppercase;font-size:clamp(42px,7.6vw,104px)}
 h2{font-size:clamp(28px,4vw,52px)}
 h3{font-size:clamp(18px,1.8vw,22px);font-weight:500;letter-spacing:-.015em}
 p{max-width:58ch}
@@ -90,18 +91,27 @@ p{max-width:58ch}
 
 /* ---------- header ---------- */
 header{position:fixed;inset:0 0 auto;z-index:80;display:flex;align-items:center;gap:clamp(10px,3vw,28px);
-  padding:clamp(12px,2.6vw,18px) var(--gutter);background:rgba(23,19,20,.86);backdrop-filter:blur(14px);
+  padding:clamp(12px,2.6vw,18px) var(--gutter);background:rgba(255,255,255,.97);backdrop-filter:blur(14px);
   border-bottom:1px solid transparent;transition:border-color .4s,transform .5s var(--ease)}
-header.stuck{border-bottom-color:var(--gold-line)}
+header.stuck{border-bottom-color:var(--red-line)}
 header.away{transform:translateY(-102%)}
-.brand{font-weight:700;font-size:clamp(17px,4.4vw,20px);letter-spacing:-.03em;white-space:nowrap;flex:none;
+.brand{font-family:"Anton",sans-serif;font-weight:400;font-size:clamp(16px,4.2vw,20px);
+  letter-spacing:.01em;text-transform:uppercase;white-space:nowrap;flex:none;
   transition:color .3s}
-.brand:hover{color:var(--gold-soft)}
-.brand i{font-style:normal;color:var(--bone-dim);font-weight:300}
+.brand:hover{color:var(--red-soft)}
+.brand i{font-style:normal;color:var(--bone-dim);font-weight:400}
+.brand .rp{color:var(--red)}
+.stripes{display:inline-flex;flex-direction:column;justify-content:center;gap:3px;
+  width:15px;flex:none}
+.stripes i{display:block;height:3px;background:var(--bone)}
+.stripes i:nth-child(2),.stripes i:nth-child(4){width:100%}
+.stripes i:nth-child(1){width:65%}
+.stripes i:nth-child(3){width:50%}
+@media(max-width:560px){.stripes{display:none}}
 nav{margin-left:auto;display:flex;gap:clamp(12px,3.2vw,26px);align-items:center;flex:none}
 nav a,nav button{font-family:"IBM Plex Mono",monospace;font-size:clamp(10px,2.6vw,11.5px);letter-spacing:.08em;
   text-transform:uppercase;color:var(--bone-dim);transition:color .3s;white-space:nowrap}
-nav a:hover,nav a.on,nav button:hover{color:var(--gold-soft)}
+nav a:hover,nav a.on,nav button:hover{color:var(--red-soft)}
 @media(max-width:420px){ .brand i{display:none} }
 main{padding-top:var(--header-h)}
 
@@ -128,6 +138,7 @@ main{padding-top:var(--header-h)}
     linear-gradient(#5A3620,#42261A);
   box-shadow:inset 0 1px 0 rgba(255,220,180,.18),inset 0 -2px 3px rgba(0,0,0,.4)}
 .sleeve{position:absolute;left:0;right:0;top:0;bottom:0;background-size:cover;
+  background-position:center;background-repeat:no-repeat;
   transform-origin:50% 100%;transition:transform 1s var(--slow),opacity .9s var(--ease)}
 .obj.open .sleeve{transform:translateY(78%) rotateX(-42deg);opacity:0}
 .snapped{position:absolute;width:23%;height:22%;left:8%;top:10%;
@@ -144,7 +155,7 @@ main{padding-top:var(--header-h)}
 .hero h1{margin-bottom:26px}
 .hero p{color:var(--bone-dim);margin-bottom:32px}
 .heroStage{aspect-ratio:1;display:grid;place-items:center;perspective:1500px;
-  background:radial-gradient(ellipse at 50% 42%,var(--gold-glow),transparent 62%);
+  background:radial-gradient(ellipse at 50% 42%,var(--red-glow),transparent 62%);
   cursor:grab;touch-action:pan-y;position:relative}
 .heroStage.drag{cursor:grabbing}
 .stagehint{position:absolute;left:50%;bottom:8px;translate:-50% 0;pointer-events:none}
@@ -158,9 +169,9 @@ main{padding-top:var(--header-h)}
 .solid{display:inline-block;padding:15px 34px;background:var(--bone);color:var(--ground);
   font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.14em;
   text-transform:uppercase;position:relative;overflow:hidden;
-  box-shadow:inset 0 0 0 1px var(--gold-line)}
+  box-shadow:inset 0 0 0 1px var(--red-line)}
 .solid span{position:relative;z-index:2}
-.solid::before{content:"";position:absolute;inset:0;background:var(--accent,var(--gold));
+.solid::before{content:"";position:absolute;inset:0;background:var(--accent,var(--red));
   transform:translateY(101%);transition:transform .5s var(--slow)}
 .solid:hover::before{transform:none}
 .solid.wide{display:block;width:100%;text-align:center}
@@ -177,7 +188,7 @@ section{padding:0 var(--gutter) var(--stack)}
 .pin{position:absolute;width:13px;height:13px;translate:-50% -50%;border-radius:50%;
   border:1px solid var(--bone);background:var(--ground);cursor:pointer;
   transition:transform .4s var(--slow),background .3s}
-.pin::after{content:"";position:absolute;inset:2px;border-radius:50%;background:var(--pc,var(--gold))}
+.pin::after{content:"";position:absolute;inset:2px;border-radius:50%;background:var(--pc,var(--red))}
 .pin:hover,.pin.on{transform:translate(-50%,-50%) scale(1.5)}
 .pinlabel{position:absolute;translate:-50% -140%;white-space:nowrap;pointer-events:none;
   font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.1em;
@@ -192,11 +203,11 @@ section{padding:0 var(--gutter) var(--stack)}
 .card .cell{aspect-ratio:1;display:grid;place-items:center;perspective:900px;
   background:var(--panel);border:1px solid var(--rule);overflow:hidden;
   transition:border-color .45s,background .45s}
-.card:hover .cell{border-color:var(--gold-line);background:var(--raise)}
+.card:hover .cell{border-color:var(--red-line);background:var(--raise)}
 .card .meta{display:flex;justify-content:space-between;gap:14px;margin-top:16px;
   align-items:flex-start}
 .card .origin{margin-top:6px}
-.card .price{font-weight:500;font-size:18px;white-space:nowrap;color:var(--pc,var(--gold))}
+.card .price{font-weight:500;font-size:18px;white-space:nowrap;color:var(--pc,var(--red))}
 .card .addline{margin-top:13px;overflow:hidden}
 .card .addline>*{display:inline-block;transform:translateY(130%);transition:transform .55s var(--slow)}
 .card:hover .addline>*,.card:focus-within .addline>*{transform:none}
@@ -207,15 +218,15 @@ section{padding:0 var(--gutter) var(--stack)}
   border-bottom:1px solid var(--rule)}
 .statement p{font-size:clamp(21px,3vw,38px);font-weight:300;line-height:1.24;
   letter-spacing:-.02em;max-width:24ch;margin:0 auto;text-align:center}
-.statement p w{transition:color .3s linear;color:rgba(240,233,222,.2)}
-.statement p w.lit{color:var(--gold-soft)}
+.statement p w{transition:color .3s linear;color:rgba(0,0,0,.16)}
+.statement p w.lit{color:var(--red-soft)}
 
 /* ---------- product page ---------- */
 .pdp{display:grid;grid-template-columns:1.04fr .96fr;gap:clamp(30px,5vw,84px);
   padding:clamp(26px,4vw,66px) var(--gutter) var(--stack)}
 .stage{position:sticky;top:calc(var(--header-h) + 30px)}
 .bigStage{aspect-ratio:1;display:grid;place-items:center;perspective:1600px;cursor:grab;
-  background:radial-gradient(ellipse at 50% 44%,var(--gold-glow),transparent 62%),var(--panel);
+  background:radial-gradient(ellipse at 50% 44%,var(--red-glow),transparent 62%),var(--panel);
   border:1px solid var(--rule);touch-action:pan-y;position:relative;overflow:hidden}
 .bigStage.drag{cursor:grabbing}
 .stagebar{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-top:12px}
@@ -224,7 +235,7 @@ section{padding:0 var(--gutter) var(--stack)}
 .pdp h2{margin-bottom:20px}
 .pdp .lede{font-size:17px;margin-bottom:18px}
 .pdp .body{color:var(--bone-dim);margin-bottom:32px}
-.pdp .price{font-size:34px;font-weight:500;color:var(--pc,var(--gold));margin-bottom:6px}
+.pdp .price{font-size:34px;font-weight:500;color:var(--pc,var(--red));margin-bottom:6px}
 .pdp .terms{margin-bottom:32px}
 .buyrow{display:flex;gap:14px;align-items:stretch;flex-wrap:wrap}
 .qty{display:inline-flex;align-items:center;border:1px solid var(--rule)}
@@ -238,7 +249,7 @@ section{padding:0 var(--gutter) var(--stack)}
 .recipe span{display:block;margin-top:6px;color:var(--bone-dim);font-size:11px}
 
 /* ---------- drawer ---------- */
-#scrim{position:fixed;inset:0;z-index:150;background:rgba(8,6,7,.68);backdrop-filter:blur(4px);
+#scrim{position:fixed;inset:0;z-index:150;background:rgba(0,0,0,.68);backdrop-filter:blur(4px);
   opacity:0;pointer-events:none;transition:opacity .45s var(--ease)}
 #scrim.open{opacity:1;pointer-events:auto}
 #drawer{position:fixed;top:0;right:0;bottom:0;z-index:160;width:min(410px,100%);
@@ -251,7 +262,7 @@ section{padding:0 var(--gutter) var(--stack)}
 .dr-foot{padding:20px 24px 24px;border-top:1px solid var(--rule)}
 .dr-foot div{display:flex;justify-content:space-between;padding:6px 0;font-size:13.5px;
   color:var(--bone-dim)}
-.dr-foot .grand{color:var(--gold-soft);font-size:22px;font-weight:500;border-top:1px solid var(--rule);
+.dr-foot .grand{color:var(--red-soft);font-size:22px;font-weight:500;border-top:1px solid var(--rule);
   margin-top:10px;padding-top:14px}
 .line{display:grid;grid-template-columns:64px 1fr auto;gap:14px;align-items:start;padding:18px 0;
   border-bottom:1px solid var(--rule);opacity:0;transform:translateX(24px);
@@ -282,7 +293,9 @@ footer{border-top:1px solid var(--rule);padding:30px var(--gutter);display:flex;
 <body>
 
 <header id="hd">
-  <a class="brand" href="#/">Singapore <i>Shopping</i></a>
+  <span class="stripes" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+  <a class="brand" href="#/">Singa<span class="rp">p</span>ore <i>Sho<span class="rp">p</span>ping</i></a>
+  <span class="stripes" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
   <nav>
     <a href="#/shop" data-r="/shop">Shop</a>
     <a href="#/map" data-r="/map">Origins</a>
@@ -622,7 +635,7 @@ function home(){
   <div class="hero">
     <div class="rv">
       <div class="mono">Singapore → Parangipettai, Cuddalore · nine products</div>
-      <h1>Pick it up.<br>Turn it over.<br>Open it.</h1>
+      <h1>Everything,<br>from Singapore.</h1>
       <p>Every product is a solid object you can handle before you buy it — photographed, packed, and shipped from Singapore to our shop in Parangipettai, Cuddalore.</p>
       <a class="solid" href="#/shop" style="--accent:${lead.palette[2]}"><span>Enter the shop</span></a>
     </div>
@@ -733,7 +746,7 @@ function paintMap(){
   x.clearRect(0,0,W,H);
 
   /* sea: dotted grid */
-  x.fillStyle = "rgba(240,233,222,.09)";
+  x.fillStyle = "rgba(10,10,10,.08)";
   for(let gy = 0; gy < H; gy += 18)
     for(let gx = 0; gx < W; gx += 18) x.fillRect(gx, gy, 1.4, 1.4);
 
@@ -751,15 +764,15 @@ function paintMap(){
   [singapore, indiaCoast].forEach(shape => {
     poly(shape);
     const g = x.createLinearGradient(0,0,W,H);
-    g.addColorStop(0,"rgba(240,233,222,.14)");
-    g.addColorStop(1,"rgba(240,233,222,.05)");
+    g.addColorStop(0,"rgba(10,10,10,.10)");
+    g.addColorStop(1,"rgba(10,10,10,.04)");
     x.fillStyle = g; x.fill();
-    x.strokeStyle = "rgba(240,233,222,.5)"; x.lineWidth = 2; x.stroke();
+    x.strokeStyle = "rgba(10,10,10,.55)"; x.lineWidth = 2; x.stroke();
   });
 
   /* contour hatching inside the Singapore shape */
   x.save(); poly(singapore); x.clip();
-  x.strokeStyle = "rgba(240,233,222,.12)"; x.lineWidth = 1;
+  x.strokeStyle = "rgba(10,10,10,.10)"; x.lineWidth = 1;
   for(let i = -H; i < W; i += 12){
     x.beginPath(); x.moveTo(i, 0); x.lineTo(i + H, H); x.stroke();
   }
@@ -767,20 +780,20 @@ function paintMap(){
 
   /* faint lines from every Singapore pin to the shop in Parangipettai, Cuddalore */
   const destX = W * .74, destY = H * .55;
-  x.strokeStyle = "rgba(240,233,222,.18)"; x.setLineDash([4,7]);
+  x.strokeStyle = "rgba(10,10,10,.15)"; x.setLineDash([4,7]);
   ESTATES.forEach(e => {
     x.beginPath(); x.moveTo(e.x / 100 * W, e.y / 100 * H);
     x.lineTo(destX, destY); x.stroke();
   });
   x.setLineDash([]);
 
-  /* destination marker: the shop itself, picked out in gold */
+  /* destination marker: the shop itself, picked out in red */
   x.beginPath(); x.arc(destX, destY, 6, 0, 7);
-  x.fillStyle = "#E8C874"; x.fill();
+  x.fillStyle = "#FF3B4E"; x.fill();
   x.beginPath(); x.arc(destX, destY, 11, 0, 7);
-  x.strokeStyle = "rgba(201,162,39,.55)"; x.lineWidth = 1.4; x.stroke();
+  x.strokeStyle = "rgba(228,0,43,.55)"; x.lineWidth = 1.4; x.stroke();
 
-  x.fillStyle = "rgba(232,200,116,.75)";
+  x.fillStyle = "rgba(255,59,78,.75)";
   x.font = '300 20px "IBM Plex Mono", monospace';
   x.fillText("→ PARANGIPETTAI, CUDDALORE", W * .40, H * .965);
 }
