@@ -408,7 +408,7 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
 .rv { opacity: 0; transform: translateY(18px); }
 .rv.in { opacity: 1; transform: none; transition: opacity 0.65s var(--ease), transform 0.65s var(--slow); }
 
-/* Seamless Floating 3D Object Stage */
+/* Seamless Floating Large 3D Object Stage */
 .obj {
   position: relative;
   transform-style: preserve-3d;
@@ -421,17 +421,17 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
-  border-radius: 16px;
+  box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.85);
+  border-radius: 18px;
   backface-visibility: hidden;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.14);
 }
 .face::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0) 50%, rgba(0,0,0,0.3) 100%);
+  background: linear-gradient(135deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0) 50%, rgba(0,0,0,0.3) 100%);
   pointer-events: none;
   opacity: 0.5;
 }
@@ -440,50 +440,53 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
   position: absolute;
   left: 50%;
   bottom: -11%;
-  width: 70%;
-  height: 20px;
+  width: 75%;
+  height: 24px;
   translate: -50% 0;
-  background: radial-gradient(ellipse, rgba(0,0,0,0.7), transparent 70%);
-  filter: blur(8px);
+  background: radial-gradient(ellipse, rgba(0,0,0,0.75), transparent 70%);
+  filter: blur(10px);
   pointer-events: none;
 }
 
 /* Hero Section */
 .hero {
-  padding: clamp(20px, 4vw, 52px) var(--gutter) clamp(24px, 4vw, 52px);
+  padding: clamp(24px, 5vw, 60px) var(--gutter) clamp(28px, 5vw, 60px);
   display: grid;
   grid-template-columns: 1fr;
-  gap: 24px;
+  gap: 28px;
   align-items: center;
 }
 @media (min-width: 860px) {
-  .hero { grid-template-columns: 1.05fr .95fr; gap: 52px; }
+  .hero { grid-template-columns: 1fr 1fr; gap: 60px; }
 }
 .hero .mono { margin-bottom: 12px; color: var(--accent-crimson); font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
 .hero .mono::before { content:""; width:6px; height:6px; border-radius:50%; background:var(--accent-crimson); box-shadow: 0 0 8px var(--accent-crimson); }
 .hero h1 { margin-bottom: 14px; }
 .hero p.hero-desc {
-  font-size: 14.5px;
+  font-size: 15px;
   line-height: 1.55;
   color: var(--text-dim);
-  margin-bottom: 20px;
+  margin-bottom: 22px;
   max-width: 42ch;
 }
 
-/* Clean Seamless Floating 3D Banner Stage */
+/* Larger High-Impact 3D Hero Banner Stage */
 .heroStage {
   width: 100%;
-  max-width: 270px;
+  max-width: 360px;
   margin: 0 auto;
   aspect-ratio: 1;
   display: grid;
   place-items: center;
-  perspective: 1500px;
+  perspective: 1600px;
   background: transparent;
   border: none;
   cursor: grab;
   touch-action: pan-y;
   position: relative;
+}
+@media (min-width: 860px) {
+  .heroStage { max-width: 440px; }
 }
 .heroStage.drag { cursor: grabbing; }
 
@@ -533,7 +536,7 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
 .solid:active { transform: scale(0.97); }
 .solid.wide { display: flex; width: 100%; text-align: center; }
 
-/* Grid & Cards */
+/* Grid & Cards — Larger Product Sizing */
 section { padding: 0 var(--gutter) var(--stack); }
 .head {
   display: flex;
@@ -542,54 +545,55 @@ section { padding: 0 var(--gutter) var(--stack); }
   gap: 12px;
   padding-bottom: 12px;
   border-bottom: 1px solid var(--border-rule);
-  margin-bottom: clamp(18px, 3vw, 32px);
+  margin-bottom: clamp(20px, 3vw, 36px);
 }
 
 .grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 16px;
+  gap: 20px;
 }
 @media (min-width: 520px) {
-  .grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+  .grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 24px; }
 }
 
 .card {
   position: relative;
   background: var(--glass-bg);
   border: var(--glass-border);
-  border-radius: 18px;
-  padding: 14px;
+  border-radius: 20px;
+  padding: 16px;
   transition: transform 0.3s var(--spring), border-color 0.3s ease;
 }
 .card:hover {
-  transform: translateY(-3px);
+  transform: translateY(-4px);
   border-color: var(--border-glow);
 }
 .card .cell {
   aspect-ratio: 1;
-  max-height: 230px;
+  max-height: 330px;
+  width: 100%;
   margin: 0 auto;
   display: grid;
   place-items: center;
-  perspective: 900px;
+  perspective: 1000px;
   overflow: hidden;
-  border-radius: 12px;
+  border-radius: 14px;
   background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.03), transparent 70%);
 }
 .card .meta {
   display: flex;
   justify-content: space-between;
   gap: 10px;
-  margin-top: 12px;
+  margin-top: 14px;
   align-items: flex-start;
 }
-.card h3 { font-family: var(--font-heading); color: var(--text-main); font-size: 16px; font-weight: 600; }
+.card h3 { font-family: var(--font-heading); color: var(--text-main); font-size: 16.5px; font-weight: 600; }
 .card .origin { margin-top: 3px; font-size: 10.5px; }
 .card .price {
   font-family: var(--font-mono);
   font-weight: 600;
-  font-size: 15.5px;
+  font-size: 16px;
   white-space: nowrap;
   color: var(--pc, var(--accent-crimson));
 }
@@ -598,14 +602,14 @@ section { padding: 0 var(--gutter) var(--stack); }
   display: flex;
   gap: 8px;
   align-items: center;
-  margin-top: 12px;
-  padding-top: 10px;
+  margin-top: 14px;
+  padding-top: 12px;
   border-top: 1px solid var(--border-rule);
 }
 .solid-btn-mobile {
   flex: 1;
-  padding: 8px 12px;
-  min-height: 38px;
+  padding: 10px 14px;
+  min-height: 40px;
   background: linear-gradient(135deg, #181924, #0f1017);
   border: 1px solid rgba(225, 29, 72, 0.4);
   color: #fff;
@@ -619,8 +623,8 @@ section { padding: 0 var(--gutter) var(--stack); }
 }
 .solid-btn-mobile:active { transform: scale(0.96); }
 .quick-btn-mobile {
-  padding: 8px 12px;
-  min-height: 38px;
+  padding: 10px 14px;
+  min-height: 40px;
   background: var(--bg-raise);
   border: 1px solid var(--border-rule);
   color: var(--text-main);
@@ -718,7 +722,7 @@ section { padding: 0 var(--gutter) var(--stack); }
 
 .bigStage {
   aspect-ratio: 1;
-  max-height: 320px;
+  max-height: 380px;
   margin: 0 auto;
   display: grid;
   place-items: center;
@@ -1417,7 +1421,7 @@ function openQuickView(id) {
 
   modalBody.innerHTML = `
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;align-items:center">
-      <div id="modalStage" style="aspect-ratio:1;max-height:240px;display:grid;place-items:center;background:var(--bg-raise);border-radius:16px"></div>
+      <div id="modalStage" style="aspect-ratio:1;max-height:260px;display:grid;place-items:center;background:var(--bg-raise);border-radius:16px"></div>
       <div>
         <div class="mono" style="color:var(--accent-crimson);margin-bottom:6px">${p.origin}</div>
         <h2 style="margin-bottom:8px;font-size:22px">${p.name}</h2>
@@ -1434,7 +1438,7 @@ function openQuickView(id) {
   document.body.classList.add("locked");
 
   const stage = document.getElementById("modalStage");
-  stage.innerHTML = object3d(p, 180);
+  stage.innerHTML = object3d(p, 220);
   grip(stage);
 }
 function closeQuickView() {
@@ -1646,22 +1650,23 @@ function render(){
   reveal(); paintMap(); mountObjects(); statementScroll();
 }
 
+/* Increased Product Object Render Scale */
 function mountObjects(){
   document.querySelectorAll(".cell[data-mini]").forEach(cell => {
     const p = find(cell.dataset.mini);
-    cell.innerHTML = object3d(p, cell.clientWidth * .72 || 150);
+    cell.innerHTML = object3d(p, Math.max(250, cell.clientWidth * 0.95));
     grip(cell, {idle:false, ry:-20, rx:6});
   });
   const hs = document.getElementById("heroStage");
   if(hs){
     const p = find(hs.dataset.mini);
-    hs.insertAdjacentHTML("afterbegin", object3d(p, hs.clientWidth * .62 || 200));
+    hs.insertAdjacentHTML("afterbegin", object3d(p, Math.max(320, hs.clientWidth * 0.98)));
     grip(hs);
   }
   const bs = document.getElementById("bigStage");
   if(bs){
     const p = find(bs.dataset.mini);
-    bs.innerHTML = object3d(p, bs.clientWidth * .68 || 240);
+    bs.innerHTML = object3d(p, Math.max(380, bs.clientWidth * 0.98));
     grip(bs);
   }
 }
